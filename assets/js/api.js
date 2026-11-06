@@ -1,7 +1,7 @@
 // Client-Side Mock Database & API Engine for GitHub Pages (Option 1)
 // Enables 100% full interactive functionality without any server needed!
 
-const DB_KEY = 'stray_dog_adoption_db';
+const DB_KEY = 'stray_dog_adoption_db_v2';
 
 // Initial Database Seed (D1 - D7)
 function getInitialDB() {
@@ -185,9 +185,21 @@ const api = {
         const breed = params.get('breed');
         const age = params.get('age');
         const gender = params.get('gender');
-        if (breed && breed !== 'ทั้งหมด') list = list.filter(d => d.breed && d.breed.includes(breed));
-        if (age && age !== 'ทั้งหมด') list = list.filter(d => d.age && d.age.includes(age));
-        if (gender && gender !== 'ทั้งหมด') list = list.filter(d => d.gender === gender);
+        if (breed && breed !== 'ทั้งหมด' && breed !== 'ทุกสายพันธุ์') {
+          list = list.filter(d => d.breed && d.breed.includes(breed));
+        }
+        if (gender && gender !== 'ทั้งหมด' && gender !== 'ทุกเพศ') {
+          list = list.filter(d => d.gender === gender);
+        }
+        if (age && age !== 'ทั้งหมด' && age !== 'ทุกช่วงอายุ') {
+          if (age.includes('น้อยกว่า 1')) {
+            list = list.filter(d => d.age && (d.age.includes('เดือน') || d.age === '1 ปี'));
+          } else if (age.includes('1 - 3')) {
+            list = list.filter(d => d.age && (d.age.includes('1 ปี') || d.age.includes('2 ปี') || d.age.includes('3 ปี')));
+          } else if (age.includes('มากกว่า 3')) {
+            list = list.filter(d => d.age && !d.age.includes('เดือน') && !d.age.includes('1 ปี') && !d.age.includes('2 ปี'));
+          }
+        }
       } catch (e) {
         console.warn('Filter dogs error:', e);
       }
