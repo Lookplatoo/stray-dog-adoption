@@ -1,7 +1,7 @@
 // Client-Side Mock Database & API Engine for GitHub Pages (Option 1)
 // Enables 100% full interactive functionality without any server needed!
 
-const DB_KEY = 'stray_dog_adoption_db_v2';
+const DB_KEY = 'stray_dog_adoption_db_v3';
 
 // Initial Database Seed (D1 - D7)
 function getInitialDB() {
@@ -15,37 +15,27 @@ function getInitialDB() {
       { id: 'D-001', code: 'D-001', name: 'น้องข้าวเหนียว', breed: 'ผสมไทย', gender: 'เมีย', age: '1 ปี', color: 'สีขาว-น้ำตาล', health: 'ฉีดวัคซีนป้องกันพิษสุนัขบ้าและวัคซีนรวม 5 โรคครบถ้วน ทำหมันเรียบร้อย สุขภาพแข็งแรงสมบูรณ์', health_record: 'ฉีดวัคซีนป้องกันพิษสุนัขบ้าและวัคซีนรวม 5 โรคครบถ้วน ทำหมันเรียบร้อย สุขภาพแข็งแรงสมบูรณ์', vaccinated: 1, neutered: 1, image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop', image_url: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop', status: 'พร้อมรับเลี้ยง' },
       { id: 'D-002', code: 'D-002', name: 'เจ้าชาโคล', breed: 'ไทยบางแก้ว', gender: 'ผู้', age: '2 ปี', color: 'สีดำ-ขาว', health: 'ตรวจสุขภาพประจำปีแล้ว ปลอดพยาธิหนอนหัวใจ ได้รับยาหยอดเห็บหมัดสม่ำเสมอ', health_record: 'ตรวจสุขภาพประจำปีแล้ว ปลอดพยาธิหนอนหัวใจ ได้รับยาหยอดเห็บหมัดสม่ำเสมอ', vaccinated: 1, neutered: 1, image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop', image_url: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&auto=format&fit=crop', status: 'พร้อมรับเลี้ยง' },
       { id: 'D-003', code: 'D-003', name: 'มะขาม', breed: 'ผสมโกลเด้น', gender: 'ผู้', age: '8 เดือน', color: 'สีทองอ่อน', health: 'ฉีดวัคซีนเข็มแรกแล้ว อยู่ระหว่างรอทำหมัน สุขภาพร่าเริง เข้ากับคนง่าย', health_record: 'ฉีดวัคซีนเข็มแรกแล้ว อยู่ระหว่างรอทำหมัน สุขภาพร่าเริง เข้ากับคนง่าย', vaccinated: 1, neutered: 0, image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&auto=format&fit=crop', image_url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&auto=format&fit=crop', status: 'พร้อมรับเลี้ยง' },
-      { id: 'D-004', code: 'D-004', name: 'ถุงทอง', breed: 'ไทยหลังอาน', gender: 'เมีย', age: '3 ปี', color: 'สีแดงน้ำตาล', health: 'ทำหมันแล้ว ฉีดวัคซีนครบถ้วน มีสมุดตรวจสุขภาพประจำตัว สุขภาพดีเยี่ยม', health_record: 'ทำหมันแล้ว ฉีดวัคซีนครบถ้วน มีสมุดตรวจสุขภาพประจำตัว สุขภาพดีเยี่ยม', vaccinated: 1, neutered: 1, image: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&auto=format&fit=crop', image_url: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&auto=format&fit=crop', status: 'ได้บ้านแล้ว' }
+      { id: 'D-004', code: 'D-004', name: 'ถุงทอง', breed: 'ไทยหลังอาน', gender: 'เมีย', age: '3 ปี', color: 'สีแดงน้ำตาล', health: 'ทำหมันแล้ว ฉีดวัคซีนครบถ้วน มีสมุดตรวจสุขภาพประจำตัว สุขภาพดีเยี่ยม', health_record: 'ทำหมันแล้ว ฉีดวัคซีนครบถ้วน มีสมุดตรวจสุขภาพประจำตัว สุขภาพดีเยี่ยม', vaccinated: 1, neutered: 1, image: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&auto=format&fit=crop', image_url: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600&auto=format&fit=crop', status: 'พร้อมรับเลี้ยง' }
     ],
-    applications: [
-      { id: 'APP-2026-001', dog_id: 'D-004', user_id: 1, housing_type: 'บ้านเดี่ยว / มีรั้วรอบขอบชิดปลอดภัย', experience: 'เคยเลี้ยงสุนัขมาก่อน เข้าใจพฤติกรรมและการดูแล', care_time: 'มีเวลาดูแลสม่ำเสมอทุกวัน / มีคนอยู่บ้าน', financial_readiness: 'พร้อมรับผิดชอบค่าอาหาร วัคซีน และค่ารักษาพยาบาลยามเจ็บป่วย', reason: 'รับเลี้ยงน้องถุงทอง ดูแลเป็นอย่างดี', score: 98, status: 'approved', created_at: '2026-10-15 10:00:00' },
-      { id: 'APP-2026-002', dog_id: 'D-001', user_id: 1, housing_type: 'บ้านเดี่ยว / มีรั้วรอบขอบชิดปลอดภัย', experience: 'เคยเลี้ยงสุนัขมาก่อน เข้าใจพฤติกรรมและการดูแล', care_time: 'มีเวลาดูแลสม่ำเสมอทุกวัน / มีคนอยู่บ้าน', financial_readiness: 'พร้อมรับผิดชอบค่าอาหาร วัคซีน และค่ารักษาพยาบาลยามเจ็บป่วย', reason: 'มีบ้านเดี่ยวพร้อมสนามหญ้า มีเวลาดูแลและต้องการน้องสุนัขมาเป็นสมาชิกใหม่ในครอบครัว', score: 95, status: 'approved', created_at: '2026-11-05 14:30:00' }
-    ],
-    appointments: [
-      { id: 'APT-2026-001', application_id: 'APP-2026-001', user_id: 1, dog_id: 'D-004', appointment_type: 'สัมภาษณ์ดูตัวที่ศูนย์', date: '2026-10-20', time: '10:30', status: 'completed', created_at: '2026-10-16 11:00:00' },
-      { id: 'APT-2026-002', application_id: 'APP-2026-002', user_id: 1, dog_id: 'D-001', appointment_type: 'สัมภาษณ์ดูตัวที่ศูนย์', date: '2026-11-10', time: '13:00', status: 'confirmed', created_at: '2026-11-05 15:00:00' }
-    ],
-    contracts: [
-      { id: 'CTR-2026-001', application_id: 'APP-2026-001', user_id: 1, dog_id: 'D-004', contract_date: '2026-10-20', stipulations: 'เลี้ยงดูระบบปิด มีรั้วรอบขอบชิด ฉีดวัคซีนสม่ำเสมอ ยินยอมให้เจ้าหน้าที่ติดตามผล', signed: 1, signature_text: 'สมชาย ใจดี', signed_at: '2026-10-20 11:30:00', status: 'active', created_at: '2026-10-20 11:00:00' }
-    ],
-    followups: [
-      { id: 'FLW-2026-001', contract_id: 'CTR-2026-001', dog_id: 'D-004', user_id: 1, report_interval: '1 เดือนแรก', health_status: 'สุขภาพสมบูรณ์ดีมาก ขนเงางาม', behavior_status: 'ร่าเริง ปรับตัวเข้ากับครอบครัวได้ดีเยี่ยม วิ่งเล่นในสนามหญ้าทุกเย็น', media_url: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=600', notes: 'น้องถุงทองปรับตัวได้ดีมาก กินอาหารเม็ดได้ตามปกติ ร่าเริง วิ่งเล่นในสนามหญ้าทุกเย็น ขนสวยและสุขภาพดีครับ', staff_feedback: 'ขอบคุณที่ดูแลน้องถุงทองเป็นอย่างดี สุขภาพดูสดใสแข็งแรงมากครับ ทางศูนย์ขอแสดงความยินดีด้วยครับ', reviewed_at: '2026-11-01 16:30:00', created_at: '2026-11-01 16:00:00' }
-    ],
+    applications: [],
+    appointments: [],
+    contracts: [],
+    followups: [],
     criteria: {
       min_score: 70,
       min_age: 20
     },
     audit_logs: [
-      { id: 1, actor_name: 'เจ้าหน้าที่พรทิพย์ แก้วใส', action: 'ยืนยันอนุมัตินัดหมายดูตัวสุนัข (APT-2026-002)', timestamp: '2026-11-05 15:05' },
-      { id: 2, actor_name: 'เจ้าหน้าที่พรทิพย์ แก้วใส', action: 'อนุมัติคำขอรับเลี้ยง APP-2026-002 (น้องข้าวเหนียว)', timestamp: '2026-11-05 14:45' },
-      { id: 3, actor_name: 'เจ้าหน้าที่พรทิพย์ แก้วใส', action: 'บันทึกข้อเสนอแนะรายงานติดตามผล FLW-2026-001', timestamp: '2026-11-01 16:30' },
-      { id: 4, actor_name: 'ผู้ดูแลระบบศูนย์พักพิง (Admin)', action: 'ตั้งค่าเกณฑ์คะแนนความพร้อมขั้นต่ำเป็น 70 คะแนน', timestamp: '2026-10-15 09:00' }
+      { id: 1, actor_name: 'ระบบอัตโนมัติ', action: 'เริ่มต้นระบบ', details: 'เริ่มต้นระบบหาบ้านสุนัขจรจัด (Clean Slate)', timestamp: '2026-11-01 00:00:00', created_at: '2026-11-01 00:00:00' }
     ]
   };
 }
 
 // Storage Manager
 function loadDB() {
+  localStorage.removeItem('stray_dog_adoption_db_v1');
+  localStorage.removeItem('stray_dog_adoption_db_v2');
+
   const data = localStorage.getItem(DB_KEY);
   if (!data) {
     const initial = getInitialDB();
