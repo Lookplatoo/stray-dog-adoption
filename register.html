@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สมัครสมาชิก | ระบบหาบ้านสุนัขจรจัด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50/50">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="border-b border-zinc-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="./index.html" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-bold text-sm">
+          🐕
+        </div>
+        <div>
+          <span class="text-sm font-semibold text-zinc-900 tracking-tight">ระบบหาบ้านสุนัขจรจัด</span>
+          <span class="hidden sm:inline text-xs text-zinc-400 ml-1.5 font-normal">| สมัครสมาชิก</span>
+        </div>
+      </a>
+
+      <a href="./login.html" class="text-xs font-medium text-zinc-600 hover:text-zinc-900 transition-colors">
+        เข้าสู่ระบบ →
+      </a>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-lg w-full mx-auto px-4 py-12 flex flex-col justify-center">
+
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 sm:p-8 space-y-6">
+      
+      <!-- Title -->
+      <div>
+        <h1 class="text-lg font-bold text-zinc-900 tracking-tight">สร้างบัญชีผู้ใช้ใหม่</h1>
+        <p class="text-xs text-zinc-500 mt-1">กรอกข้อมูลส่วนบุคคลเพื่อลงทะเบียนเป็นผู้ขอรับเลี้ยงสุนัขในระบบ</p>
+      </div>
+
+      <!-- Registration Form (Context Diagram 6 Fields) -->
+      <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 text-xs">
+        
+        <div>
+          <label class="block font-medium text-zinc-700 mb-1.5">ชื่อ - นามสกุลจริง <span class="text-rose-500">*</span></label>
+          <input type="text" id="reg-name" required placeholder="นายรักสัตว์ ใจดี" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-zinc-700 mb-1.5">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label>
+            <input type="tel" id="reg-phone" required placeholder="08X-XXX-XXXX" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all">
+          </div>
+          <div>
+            <label class="block font-medium text-zinc-700 mb-1.5">อีเมล <span class="text-rose-500">*</span></label>
+            <input type="email" id="reg-email" required placeholder="user@example.com" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-700 mb-1.5">ที่อยู่ปัจจุบัน <span class="text-rose-500">*</span></label>
+          <textarea id="reg-address" required rows="2" placeholder="บ้านเลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-zinc-100">
+          <div>
+            <label class="block font-medium text-zinc-700 mb-1.5">ชื่อผู้ใช้ (Username) <span class="text-rose-500">*</span></label>
+            <input type="text" id="reg-username" required placeholder="username" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all">
+          </div>
+          <div>
+            <label class="block font-medium text-zinc-700 mb-1.5">รหัสผ่าน (Password) <span class="text-rose-500">*</span></label>
+            <input type="password" id="reg-password" required placeholder="••••••••" class="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-zinc-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" id="btn-submit" class="w-full py-2.5 rounded-xl bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors shadow-2xs text-xs">
+            ยืนยันการสร้างบัญชีผู้ใช้
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Bottom link -->
+      <div class="pt-2 border-t border-zinc-100 text-center">
+        <p class="text-xs text-zinc-500">
+          มีบัญชีผู้ใช้งานอยู่แล้ว? 
+          <a href="./login.html" class="font-medium text-zinc-900 hover:underline ml-1">เข้าสู่ระบบ</a>
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="py-6 text-center text-xs text-zinc-400">
+    <div class="max-w-5xl mx-auto px-4">
+      <p>ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด • Stray Dog Adoption Portal</p>
+    </div>
+  </footer>
+
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/api.js"></script>
+
+  <script>
+    async function handleRegister(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'กำลังประมวลผล...';
+
+      const payload = {
+        name: document.getElementById('reg-name').value.trim(),
+        phone: document.getElementById('reg-phone').value.trim(),
+        email: document.getElementById('reg-email').value.trim(),
+        address: document.getElementById('reg-address').value.trim(),
+        username: document.getElementById('reg-username').value.trim(),
+        password: document.getElementById('reg-password').value
+      };
+
+      try {
+        const res = await api.register(payload);
+        api.setToken(res.token);
+        localStorage.setItem('user_info', JSON.stringify(res.user));
+        showToast('สร้างบัญชีผู้ใช้สำเร็จ! กำลังนำท่านเข้าสู่ระบบ...');
+        setTimeout(() => {
+          window.location.href = './index.html';
+        }, 800);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันการสร้างบัญชีผู้ใช้';
+      }
+    }
+  </script>
+</body>
+</html>

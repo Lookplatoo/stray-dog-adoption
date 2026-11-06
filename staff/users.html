@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบผู้ดูแล | จัดการบัญชีผู้ใช้</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบผู้ดูแลระบบ</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Admin Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./users.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">👥 จัดการบัญชีผู้ใช้</a>
+      <a href="./criteria.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">⚙️ ตั้งค่าแบบฟอร์มประเมินความพร้อม</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">จัดการข้อมูลและสถานะผู้ใช้งาน</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบสิทธิ์ผู้ใช้งาน สมาชิกผู้รับเลี้ยง และการระงับหรือเปิดใช้งานบัญชี</p>
+      </div>
+      <button onclick="loadUsers()" class="p-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-600 shadow-2xs" title="รีเฟรช">
+        🔄
+      </button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3.5">ชื่อผู้ใช้งาน</th>
+              <th class="px-4 py-3.5">อีเมล / เบอร์โทรศัพท์</th>
+              <th class="px-4 py-3.5">บทบาท (Role)</th>
+              <th class="px-4 py-3.5">ที่อยู่อาศัย & สภาพแวดล้อม</th>
+              <th class="px-4 py-3.5 text-center">สถานะบัญชี</th>
+              <th class="px-4 py-3.5 text-right">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr>
+              <td colspan="6" class="px-4 py-8 text-center text-zinc-400">กำลังโหลดรายชื่อผู้ใช้งาน...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    async function initPage() {
+      const isAuthed = await requireRole(['admin']);
+      if (!isAuthed) return;
+      await loadUsers();
+    }
+
+    async function loadUsers() {
+      const tbody = document.getElementById('users-table-body');
+      try {
+        const res = await API.getUsers();
+        const list = res.data || [];
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-zinc-400">ไม่พบข้อมูลผู้ใช้งาน</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(u => {
+          let roleBadge = '';
+          if (u.role === 'admin') roleBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">🛡️ แอดมิน</span>';
+          else if (u.role === 'staff') roleBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">🧑‍💼 เจ้าหน้าที่</span>';
+          else roleBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 text-zinc-700">👤 ผู้รับเลี้ยง</span>';
+
+          const isActive = u.status === 'active';
+
+          return `
+            <tr class="hover:bg-zinc-50/60 transition-colors">
+              <td class="px-4 py-3.5">
+                <div class="font-bold text-zinc-900">${u.name}</div>
+                <div class="text-[10px] text-zinc-400 font-mono">ID: ${u.user_code || ('U-' + u.id)}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="text-zinc-800">${u.email}</div>
+                <div class="text-[11px] text-zinc-400">${u.phone || '-'}</div>
+              </td>
+              <td class="px-4 py-3.5">${roleBadge}</td>
+              <td class="px-4 py-3.5 text-zinc-600">
+                <div>${u.housing_type || 'ไม่ระบุ'}</div>
+                <div class="text-[10px] text-zinc-400">${u.experience || ''}</div>
+              </td>
+              <td class="px-4 py-3.5 text-center">
+                ${isActive 
+                  ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">ใช้งานปกติ</span>'
+                  : '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">ระงับการใช้งาน</span>'
+                }
+              </td>
+              <td class="px-4 py-3.5 text-right">
+                <button onclick="toggleUserStatus('${u.id}', '${isActive ? 'suspended' : 'active'}')" class="px-3 py-1.5 rounded-lg border ${isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'} text-xs font-medium transition-colors shadow-2xs">
+                  ${isActive ? 'ระงับบัญชี' : 'เปิดใช้งานบัญชี'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-rose-500">${err.message}</td></tr>`;
+      }
+    }
+
+    async function toggleUserStatus(id, newStatus) {
+      const actionName = newStatus === 'active' ? 'เปิดใช้งาน' : 'ระงับบัญชี';
+      if (!confirm(`คุณต้องการ${actionName}ผู้ใช้งานท่านนี้ใช่หรือไม่?`)) return;
+
+      try {
+        const res = await API.updateUserStatus(id, newStatus);
+        showToast(res.message || `ดำเนินการ${actionName}สำเร็จ`);
+        await loadUsers();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

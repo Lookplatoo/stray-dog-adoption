@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเจ้าหน้าที่ | จัดการตารางนัดหมาย</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบเจ้าหน้าที่ศูนย์พักพิง</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Staff Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📋 คัดกรองคำขอ</a>
+      <a href="./appointments.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">📅 ตารางนัดหมาย</a>
+      <a href="./contracts.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📜 สัญญาการรับเลี้ยง</a>
+      <a href="./followups.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🔍 ตรวจติดตามผล</a>
+      <a href="./dogs.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🐕 จัดการสุนัข</a>
+      <a href="./stats.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📊 รายงานสถิติ</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">จัดการตารางนัดหมาย & แจ้งเตือน</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบและยืนยันนัดหมายดูตัวสุนัข พร้อมระบบส่งอีเมลแจ้งเตือนล่วงหน้าอัตโนมัติ</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="filter-appt-status" onchange="loadAppointments()" class="text-xs rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-800 shadow-2xs">
+          <option value="ทั้งหมด">นัดหมายทั้งหมด</option>
+          <option value="รอดำเนินการ">รอดำเนินการ</option>
+          <option value="ยืนยันนัดหมายแล้ว">ยืนยันนัดหมายแล้ว</option>
+          <option value="ดำเนินการแล้ว">ดำเนินการแล้ว</option>
+          <option value="ยกเลิกแล้ว">ยกเลิกแล้ว</option>
+        </select>
+        <button onclick="loadAppointments()" class="p-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-600 shadow-2xs" title="รีเฟรช">
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3.5">รหัสนัดหมาย</th>
+              <th class="px-4 py-3.5">วันและเวลานัด</th>
+              <th class="px-4 py-3.5">ผู้ขอรับเลี้ยง</th>
+              <th class="px-4 py-3.5">สุนัขที่นัดพบ</th>
+              <th class="px-4 py-3.5">ประเภทการนัด</th>
+              <th class="px-4 py-3.5 text-center">สถานะ</th>
+              <th class="px-4 py-3.5 text-right">การจัดการ & แจ้งเตือน</th>
+            </tr>
+          </thead>
+          <tbody id="appts-table-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-zinc-400">กำลังโหลดรายการนัดหมาย...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    async function initPage() {
+      const isAuthed = await requireRole(['staff']);
+      if (!isAuthed) return;
+      await loadAppointments();
+    }
+
+    async function loadAppointments() {
+      const tbody = document.getElementById('appts-table-body');
+      const filter = document.getElementById('filter-appt-status').value;
+
+      try {
+        const res = await API.getAllAppointments();
+        let list = res.data || [];
+
+        if (filter !== 'ทั้งหมด') {
+          list = list.filter(a => a.status === filter);
+        }
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-zinc-400">ไม่พบรายการนัดหมายในหมวดนี้</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(a => {
+          let badge = '';
+          if (a.status === 'ยืนยันนัดหมายแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">ยืนยันแล้ว</span>';
+          else if (a.status === 'ดำเนินการแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">เสร็จสิ้น</span>';
+          else if (a.status === 'ยกเลิกแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-600">ยกเลิก</span>';
+          else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">รอตรวจสอบ</span>';
+
+          const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว';
+
+          return `
+            <tr class="hover:bg-zinc-50/60 transition-colors">
+              <td class="px-4 py-3.5 font-mono text-zinc-500 font-medium">${a.appointment_code || a.id.slice(0, 8)}</td>
+              <td class="px-4 py-3.5 font-medium text-zinc-900">
+                <div>📅 ${a.appointment_date || '-'}</div>
+                <div class="text-[11px] text-zinc-500">⏰ ${a.appointment_time || '-'}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="font-semibold text-zinc-900">${a.adopter_name || '-'}</div>
+                <div class="text-[11px] text-zinc-400">${a.adopter_email || ''} • ${a.adopter_phone || ''}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-2">
+                  <img src="${a.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-7 h-7 rounded-md object-cover">
+                  <div>
+                    <div class="font-medium text-zinc-800">${a.dog_name || 'สุนัข'}</div>
+                    <div class="text-[10px] text-zinc-400">${a.dog_code || ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3.5 text-zinc-600">${a.appointment_type || 'ดูตัวที่ศูนย์'}</td>
+              <td class="px-4 py-3.5 text-center">${badge}</td>
+              <td class="px-4 py-3.5 text-right space-x-1">
+                ${a.status === 'รอดำเนินการ' || a.status === 'รออนุมัติ' ? `
+                  <button onclick="updateStatus('${a.id}', 'ยืนยันนัดหมายแล้ว')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow-2xs">
+                    ✓ ยืนยันนัด
+                  </button>
+                  <button onclick="updateStatus('${a.id}', 'ยกเลิกแล้ว')" class="px-2.5 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-rose-600 font-medium">
+                    ✕ ปฏิเสธ
+                  </button>
+                ` : ''}
+
+                ${isConfirmed ? `
+                  <button onclick="remindUser('${a.id}')" title="ส่งอีเมลแจ้งเตือนล่วงหน้า" class="px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium">
+                    🔔 แจ้งเตือนอีเมล
+                  </button>
+                  <button onclick="updateStatus('${a.id}', 'ดำเนินการแล้ว')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium hover:bg-zinc-800 shadow-2xs">
+                    ✓ พบตัวแล้ว
+                  </button>
+                ` : ''}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-rose-500">${err.message}</td></tr>`;
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const res = await API.updateAppointmentStatus(id, status, `เจ้าหน้าที่ปรับสถานะเป็น ${status}`);
+        showToast(res.message || 'บันทึกสถานะนัดหมายสำเร็จ');
+        await loadAppointments();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function remindUser(id) {
+      try {
+        const res = await API.remindAppointment(id);
+        showToast(res.message || 'ส่งอีเมลแจ้งเตือนนัดหมายไปยังผู้รับเลี้ยงเรียบร้อยแล้ว!');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

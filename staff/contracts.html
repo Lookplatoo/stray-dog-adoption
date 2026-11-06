@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเจ้าหน้าที่ | จัดการสัญญารับเลี้ยง</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบเจ้าหน้าที่ศูนย์พักพิง</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Staff Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📋 คัดกรองคำขอ</a>
+      <a href="./appointments.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📅 ตารางนัดหมาย</a>
+      <a href="./contracts.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">📜 สัญญาการรับเลี้ยง</a>
+      <a href="./followups.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🔍 ตรวจติดตามผล</a>
+      <a href="./dogs.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🐕 จัดการสุนัข</a>
+      <a href="./stats.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📊 รายงานสถิติ</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">จัดการสัญญาและข้อตกลงการรับเลี้ยง</h2>
+        <p class="text-xs text-zinc-500 mt-1">จัดทำเอกสารสัญญา ปรับปรุงแก้ไขข้อกำหนด และตรวจสอบสถานะการลงนามดิจิทัล</p>
+      </div>
+      <button onclick="openCreateContractModal()" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+        + จัดทำสัญญาฉบับใหม่
+      </button>
+    </div>
+
+    <!-- Contracts Table -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3.5">เลขที่สัญญา</th>
+              <th class="px-4 py-3.5">ผู้รับอุปการะ</th>
+              <th class="px-4 py-3.5">สุนัขที่รับเลี้ยง</th>
+              <th class="px-4 py-3.5">วันที่จัดทำ</th>
+              <th class="px-4 py-3.5 text-center">สถานะการลงนาม</th>
+              <th class="px-4 py-3.5 text-right">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="contracts-table-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr>
+              <td colspan="6" class="px-4 py-8 text-center text-zinc-400">กำลังโหลดรายการสัญญา...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= CREATE CONTRACT MODAL ================= -->
+  <div id="create-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <h3 class="text-base font-bold text-zinc-900">จัดทำสัญญาการรับอุปการะใหม่</h3>
+        <button onclick="closeCreateModal()" class="text-zinc-400 hover:text-zinc-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="create-contract-form" onsubmit="handleCreateContract(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1">เลือกคำขอรับเลี้ยงที่ผ่านการอนุมัติ <span class="text-rose-500">*</span></label>
+          <select id="modal-app-select" required class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white">
+            <option value="">-- กรุณาเลือกคำขอรับเลี้ยง --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1">ข้อกำหนดและเงื่อนไขการรับเลี้ยง (ปรับแต่งได้):</label>
+          <textarea id="modal-contract-terms" rows="6" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 font-mono text-[11px] focus:bg-white leading-relaxed">
+ผู้รับเลี้ยงยินยอมดูแลเอาใจใส่สุนัขด้วยความเมตตา ไม่ทอดทิ้ง กักขัง หรือทรมาน
+ผู้รับเลี้ยงยินยอมพาเข้ารับการฉีดวัคซีนป้องกันโรคพิษสุนัขบ้า และวัคซีนรวมตามกำหนดทุกปี
+ผู้รับเลี้ยงยินยอมให้เจ้าหน้าที่ของศูนย์ติดตามผลความเป็นอยู่และสุขอนามัยหลังการรับเลี้ยง
+หากไม่สามารถเลี้ยงดูต่อไปได้ ผู้รับเลี้ยงจะต้องแจ้งศูนย์พักพิงและส่งคืน ห้ามนำไปปล่อยทิ้งหรือขายต่อเด็ดขาด</textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
+          <button type="button" onclick="closeCreateModal()" class="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-100 font-medium">ยกเลิก</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 shadow-2xs">
+            ยืนยันการออกสัญญา
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    let cachedContracts = [];
+
+    async function initPage() {
+      const isAuthed = await requireRole(['staff']);
+      if (!isAuthed) return;
+      await loadContracts();
+    }
+
+    async function loadContracts() {
+      const tbody = document.getElementById('contracts-table-body');
+      try {
+        const res = await API.getAllContracts();
+        const list = res.data || [];
+        cachedContracts = list;
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-zinc-400">ยังไม่มีเอกสารสัญญาในระบบ</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(c => {
+          const isSigned = c.status === 'ลงนามแล้ว';
+          return `
+            <tr class="hover:bg-zinc-50/60 transition-colors">
+              <td class="px-4 py-3.5 font-mono text-zinc-800 font-bold">${c.contract_code || c.id.slice(0, 8)}</td>
+              <td class="px-4 py-3.5">
+                <div class="font-semibold text-zinc-900">${c.adopter_name || 'ผู้รับเลี้ยง'}</div>
+                <div class="text-[11px] text-zinc-400">${c.adopter_email || ''}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-2">
+                  <img src="${c.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-7 h-7 rounded-md object-cover">
+                  <div>
+                    <div class="font-medium text-zinc-800">${c.dog_name || 'สุนัข'}</div>
+                    <div class="text-[10px] text-zinc-400">${c.dog_code || ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3.5 text-zinc-500">${c.created_at ? c.created_at.split('T')[0] : '-'}</td>
+              <td class="px-4 py-3.5 text-center">
+                ${isSigned 
+                  ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">✓ ลงนามแล้ว (${c.signed_name || ''})</span>`
+                  : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">⏳ รอผู้รับเลี้ยงลงนาม</span>`
+                }
+              </td>
+              <td class="px-4 py-3.5 text-right space-x-1">
+                <a href="../contract.html" target="_blank" class="px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium inline-block">
+                  ดูฉบับเต็ม ↗
+                </a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-rose-500">${err.message}</td></tr>`;
+      }
+    }
+
+    async function openCreateContractModal() {
+      const select = document.getElementById('modal-app-select');
+      select.innerHTML = '<option value="">-- กรุณาเลือกคำขอรับเลี้ยง --</option>';
+
+      try {
+        const res = await API.getAllApplications();
+        const approved = (res.data || []).filter(a => a.status === 'อนุมัติแล้ว');
+        
+        if (approved.length === 0) {
+          select.innerHTML += '<option disabled>ไม่มีคำขอที่ผ่านการอนุมัติที่ยังไม่ได้ทำสัญญา</option>';
+        } else {
+          approved.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.textContent = `${a.adopter_name} - ขอรับเลี้ยง: ${a.dog_name} (${a.dog_code})`;
+            opt.dataset.userId = a.user_id;
+            opt.dataset.dogId = a.dog_id;
+            select.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      document.getElementById('create-modal').classList.remove('hidden');
+    }
+
+    function closeCreateModal() {
+      document.getElementById('create-modal').classList.add('hidden');
+    }
+
+    async function handleCreateContract(e) {
+      e.preventDefault();
+      const select = document.getElementById('modal-app-select');
+      const appId = select.value;
+      const opt = select.options[select.selectedIndex];
+      if (!appId || !opt) return;
+
+      const payload = {
+        application_id: appId,
+        user_id: opt.dataset.userId,
+        dog_id: opt.dataset.dogId,
+        terms: document.getElementById('modal-contract-terms').value.trim()
+      };
+
+      try {
+        const res = await API.createContract(payload);
+        showToast(res.message || 'จัดทำสัญญาเรียบร้อยแล้วและส่งแจ้งเตือนทางอีเมล!');
+        closeCreateModal();
+        await loadContracts();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

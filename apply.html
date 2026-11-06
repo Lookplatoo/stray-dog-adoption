@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ยื่นคำขอรับเลี้ยงและประเมินความพร้อม | ระบบหาบ้านสุนัขจรจัด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <a href="./index.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            🐕
+          </div>
+          <div>
+            <h1 class="text-base font-semibold text-zinc-900 leading-tight">ระบบหาบ้านสุนัขจรจัด</h1>
+            <p class="text-[11px] text-zinc-400">Stray Dog Adoption Portal</p>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl text-xs font-medium">
+          <a href="./index.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ค้นหาสุนัข</a>
+          <a href="./apply.html" class="px-3.5 py-1.5 rounded-lg text-zinc-900 bg-white shadow-xs font-semibold">ยื่นคำขอรับเลี้ยง</a>
+          <a href="./appointment.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ใบนัดหมาย</a>
+          <a href="./contract.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">สัญญาการรับเลี้ยง</a>
+          <a href="./followup.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ติดตามผล</a>
+        </nav>
+
+        <!-- Right Actions: Dynamic Auth State -->
+        <div id="navbar-auth-actions" class="flex items-center gap-2.5"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Selected Dog Banner (Explicit Context) -->
+    <div id="selected-dog-card" class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img id="banner-dog-img" src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600" class="w-16 h-16 rounded-2xl object-cover border border-zinc-200 shadow-xs">
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <span id="banner-dog-id" class="text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-md font-mono font-semibold">D-001</span>
+            <span class="badge-subtle bg-emerald-50 text-emerald-700 border border-emerald-200">พร้อมรับเลี้ยง</span>
+          </div>
+          <h2 id="banner-dog-name" class="text-lg font-bold text-zinc-900">กำลังยื่นขอรับเลี้ยง: น้องข้าวเหนียว</h2>
+          <p id="banner-dog-info" class="text-xs text-zinc-500">ผสมไทย • เพศ เมีย • อายุ 1 ปี</p>
+        </div>
+      </div>
+      <a href="./index.html" class="text-xs font-medium px-3 py-2 rounded-xl border border-zinc-200 hover:bg-zinc-50 text-zinc-700 transition-colors shrink-0">
+        เปลี่ยนสุนัขที่เลือก
+      </a>
+    </div>
+
+    <!-- Application & Evaluation Form -->
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-zinc-200 shadow-xs space-y-6">
+      <div class="border-b border-zinc-100 pb-4">
+        <h3 class="text-base font-bold text-zinc-900">แบบฟอร์มยื่นคำขอรับเลี้ยงและประเมินความพร้อม</h3>
+        <p class="text-xs text-zinc-500 mt-1">ข้อมูลนี้จะถูกส่งไปยังระบบคัดกรองของเจ้าหน้าที่ศูนย์พักพิงเพื่อตรวจสอบตามเกณฑ์ความพร้อม</p>
+      </div>
+
+      <form id="apply-form" onsubmit="handleApplySubmit(event)" class="space-y-5 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1.5">ลักษณะที่อยู่อาศัย <span class="text-rose-500">*</span></label>
+            <select id="housing-type" required class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white transition-all">
+              <option value="บ้านเดี่ยว / มีรั้วรอบขอบชิดปลอดภัย">บ้านเดี่ยว / มีรั้วรอบขอบชิดปลอดภัย (+20 คะแนน)</option>
+              <option value="ทาวน์โฮม / มีพื้นที่หน้าบ้านมิดชิด">ทาวน์โฮม / มีพื้นที่หน้าบ้านมิดชิด (+15 คะแนน)</option>
+              <option value="คอนโด / อพาร์ตเมนต์ที่อนุญาตให้เลี้ยงสัตว์">คอนโด / อพาร์ตเมนต์ที่อนุญาต (+10 คะแนน)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1.5">ประสบการณ์การเลี้ยงสัตว์ <span class="text-rose-500">*</span></label>
+            <select id="experience" required class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white transition-all">
+              <option value="เคยเลี้ยงสุนัขมาก่อน เข้าใจพฤติกรรมและการดูแล">เคยเลี้ยงสุนัขมาก่อน เข้าใจพฤติกรรม (+15 คะแนน)</option>
+              <option value="มีสัตว์เลี้ยงอื่นในบ้าน เข้ากับสัตว์อื่นได้ดี">มีสัตว์เลี้ยงอื่นในบ้าน (+12 คะแนน)</option>
+              <option value="เป็นผู้เลี้ยงมือใหม่ แต่พร้อมศึกษาและดูแลเต็มที่">ผู้เลี้ยงมือใหม่ พร้อมเรียนรู้ (+10 คะแนน)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1.5">ความพร้อมด้านเวลาในการดูแล <span class="text-rose-500">*</span></label>
+            <select id="care-time" required class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white transition-all">
+              <option value="มีเวลาดูแลสม่ำเสมอทุกวัน / มีคนอยู่บ้าน">มีเวลาดูแลสม่ำเสมอทุกวัน (+10 คะแนน)</option>
+              <option value="ทำงานนอกบ้าน แต่มีเวลาพาเดินเล่นช่วงเช้า-เย็น">มีเวลาช่วงเช้าและเย็น (+8 คะแนน)</option>
+              <option value="เดินทางบ่อย แต่มีคนในครอบครัวช่วยดูแลแทน">เดินทางบ่อย มีคนช่วยดูแล (+5 คะแนน)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1.5">ความพร้อมด้านค่าใช้จ่ายและค่ารักษาพยาบาล <span class="text-rose-500">*</span></label>
+            <select id="financial" required class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white transition-all">
+              <option value="พร้อมรับผิดชอบค่าอาหาร วัคซีน และค่ารักษาพยาบาลยามเจ็บป่วย">พร้อมรับผิดชอบค่าอาหาร วัคซีน และค่ารักษา (+10 คะแนน)</option>
+              <option value="มีงบประมาณเฉพาะการดูแลทั่วไป">มีงบประมาณเฉพาะการดูแลทั่วไป (+5 คะแนน)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1.5">เหตุผลและความตั้งใจในการรับเลี้ยง <span class="text-rose-500">*</span></label>
+          <textarea id="reason" rows="3" required placeholder="อธิบายสภาพแวดล้อมที่บ้าน เวลาที่คุณจะใช้ร่วมกับสุนัข และความพร้อมของสมาชิกในครอบครัว..." class="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-zinc-800 focus:bg-white transition-all"></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="submit" id="btn-submit" class="px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs transition-colors shadow-sm">
+            ส่งคำขอและบันทึกผลการประเมินความพร้อม →
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- My Applications Status History -->
+    <div class="bg-white p-6 rounded-3xl border border-zinc-200 shadow-xs space-y-4">
+      <div class="border-b border-zinc-100 pb-3 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-zinc-900">ประวัติคำขอรับเลี้ยงของฉัน</h3>
+        <span class="text-xs text-zinc-400">อัปเดตสถานะจากเจ้าหน้าที่</span>
+      </div>
+
+      <div id="my-apps-list" class="space-y-3">
+        <div class="text-center py-6 text-xs text-zinc-400">กำลังโหลดรายการคำขอ...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-400">
+    <p>© 2026 Stray Dog Adoption System | วิชา ITDS262 Software Engineering Lab</p>
+  </footer>
+
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script>
+    let targetDogId = 'D-001';
+
+    async function loadDogDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dogId = urlParams.get('dog_id') || 'D-001';
+      targetDogId = dogId;
+
+      try {
+        const res = await api.getDogById(dogId);
+        const dog = res.dog;
+        document.getElementById('banner-dog-name').textContent = `กำลังยื่นขอรับเลี้ยง: ${dog.name}`;
+        document.getElementById('banner-dog-id').textContent = dog.id;
+        document.getElementById('banner-dog-info').textContent = `${dog.breed} • เพศ ${dog.gender} • อายุ ${dog.age}`;
+        document.getElementById('banner-dog-img').src = dog.image;
+      } catch (e) {
+        console.warn('Load dog error:', e);
+      }
+    }
+
+    async function loadMyApplications() {
+      const listContainer = document.getElementById('my-apps-list');
+      try {
+        const res = await api.getMyApplications();
+        if (!res.applications || res.applications.length === 0) {
+          listContainer.innerHTML = '<div class="text-center py-6 text-xs text-zinc-400">คุณยังไม่เคยยื่นคำขอรับเลี้ยง</div>';
+          return;
+        }
+
+        listContainer.innerHTML = res.applications.map(a => `
+          <div class="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-3">
+              <img src="${a.dog_image}" class="w-12 h-12 rounded-xl object-cover border border-zinc-200">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-zinc-900">${a.dog_name}</span>
+                  <span class="text-[10px] font-mono text-zinc-500 bg-white px-1.5 py-0.5 rounded border border-zinc-200">${a.id}</span>
+                  <span class="badge-subtle ${a.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : (a.status === 'rejected' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700')}">
+                    ${a.status === 'approved' ? 'ผ่านการคัดกรองแล้ว' : (a.status === 'rejected' ? 'ไม่ผ่านเกณฑ์' : 'รอเจ้าหน้าที่ตรวจสอบ')}
+                  </span>
+                </div>
+                <p class="text-zinc-500 mt-0.5">คะแนนประเมิน: <strong>${a.score}/100</strong> | ยื่นเมื่อ: ${a.created_at.substring(0, 10)}</p>
+              </div>
+            </div>
+
+            <div>
+              ${a.status === 'approved' 
+                ? `<a href="./appointment.html?app_id=${a.id}" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-white font-semibold text-xs hover:bg-zinc-800 transition-colors shadow-xs">ไปจองวันนัดหมายดูตัว →</a>`
+                : `<span class="text-zinc-400 italic">${a.status === 'pending' ? 'อยู่ระหว่างรอการตรวจประวัติ' : 'สามารถเลือกสุนัขตัวอื่นได้'}</span>`
+              }
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        listContainer.innerHTML = '<div class="text-center py-6 text-xs text-rose-500">เกิดข้อผิดพลาดในการโหลดประวัติคำขอ</div>';
+      }
+    }
+
+    async function handleApplySubmit(e) {
+      e.preventDefault();
+      const payload = {
+        dog_id: targetDogId,
+        housing_type: document.getElementById('housing-type').value,
+        experience: document.getElementById('experience').value,
+        care_time: document.getElementById('care-time').value,
+        financial_readiness: document.getElementById('financial').value,
+        reason: document.getElementById('reason').value
+      };
+
+      try {
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.textContent = 'กำลังส่งข้อมูล...';
+
+        const res = await api.submitApplication(payload);
+        showToast(`ยื่นคำขอรับเลี้ยงสำเร็จ! รหัส ${res.applicationId} (คะแนนประเมิน: ${res.score}/100)`, 'success');
+        
+        await loadMyApplications();
+        btn.disabled = false;
+        btn.textContent = 'ส่งคำขอและบันทึกผลการประเมินความพร้อม →';
+      } catch (err) {
+        showToast('ยื่นคำขอไม่สำเร็จ: ' + err.message, 'error');
+        document.getElementById('btn-submit').disabled = false;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const isAuthed = await checkAuth(['adopter', 'staff', 'admin']);
+      if (!isAuthed) return;
+      await loadDogDetails();
+      await loadMyApplications();
+    });
+  </script>
+</body>
+</html>

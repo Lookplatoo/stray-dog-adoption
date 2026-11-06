@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเจ้าหน้าที่ | คัดกรองคำขอรับเลี้ยง</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Left Brand -->
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">
+            🛡️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบเจ้าหน้าที่ศูนย์พักพิง</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Staff Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">📋 คัดกรองคำขอ</a>
+      <a href="./appointments.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📅 ตารางนัดหมาย</a>
+      <a href="./contracts.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📜 สัญญาการรับเลี้ยง</a>
+      <a href="./followups.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🔍 ตรวจติดตามผล</a>
+      <a href="./dogs.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🐕 จัดการสุนัข</a>
+      <a href="./stats.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📊 รายงานสถิติ</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">ตรวจสอบประวัติและคัดกรองคำขอรับเลี้ยง</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบคุณสมบัติผู้ขอรับเลี้ยง คะแนนประเมินความพร้อม และพิจารณาอนุมัติหรือปฏิเสธคำขอ</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="filter-status" onchange="loadApplications()" class="text-xs rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-800 shadow-2xs">
+          <option value="ทั้งหมด">สถานะทั้งหมด</option>
+          <option value="รอดำเนินการ" selected>เฉพาะรอดำเนินการ</option>
+          <option value="อนุมัติแล้ว">อนุมัติแล้ว</option>
+          <option value="ปฏิเสธแล้ว">ปฏิเสธแล้ว</option>
+        </select>
+        <button onclick="loadApplications()" class="p-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-600 shadow-2xs" title="รีเฟรช">
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- Applications Table / Cards -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3.5">รหัสคำขอ</th>
+              <th class="px-4 py-3.5">ผู้ยื่นคำขอ</th>
+              <th class="px-4 py-3.5">สุนัขที่สนใจ</th>
+              <th class="px-4 py-3.5 text-center">คะแนนความพร้อม</th>
+              <th class="px-4 py-3.5">วันที่ยื่น</th>
+              <th class="px-4 py-3.5 text-center">สถานะ</th>
+              <th class="px-4 py-3.5 text-right">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="applications-table-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-zinc-400">กำลังโหลดคำขอรับเลี้ยง...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= REVIEW MODAL ================= -->
+  <div id="review-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <h3 class="text-base font-bold text-zinc-900" id="modal-title">ตรวจสอบรายละเอียดคำขอ</h3>
+        <button onclick="closeReviewModal()" class="text-zinc-400 hover:text-zinc-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <div id="modal-details" class="space-y-4 text-xs">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="border-t border-zinc-100 pt-4 space-y-3">
+        <label class="block text-xs font-semibold text-zinc-700">หมายเหตุ / เหตุผลการพิจารณา (จะส่งไปยังอีเมลผู้ยื่นคำขอ):</label>
+        <textarea id="review-reason" rows="2" placeholder="ระบุเหตุผล เช่น เอกสารครบถ้วน พื้นที่มีรั้วมิดชิด หรือ แจ้งรายละเอียดเพิ่มเติม..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800 focus:bg-white"></textarea>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="closeReviewModal()" class="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-100 text-xs font-medium">
+            ยกเลิก
+          </button>
+          <button onclick="submitReviewDecision('ปฏิเสธแล้ว')" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-medium hover:bg-rose-700 shadow-2xs">
+            ✕ ปฏิเสธคำขอ
+          </button>
+          <button onclick="submitReviewDecision('อนุมัติแล้ว')" class="px-5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 shadow-2xs">
+            ✓ อนุมัติคำขอ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    let currentAppList = [];
+    let activeAppId = null;
+
+    async function initPage() {
+      // Require Staff role
+      const isAuthed = await requireRole(['staff']);
+      if (!isAuthed) return;
+      await loadApplications();
+    }
+
+    async function loadApplications() {
+      const tbody = document.getElementById('applications-table-body');
+      const filter = document.getElementById('filter-status').value;
+      
+      try {
+        const res = await API.getAllApplications();
+        let list = res.data || [];
+        currentAppList = list;
+
+        if (filter !== 'ทั้งหมด') {
+          list = list.filter(a => a.status === filter);
+        }
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-zinc-400">ไม่พบคำขอรับเลี้ยงในหมวดนี้</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(a => {
+          let badge = '';
+          if (a.status === 'อนุมัติแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">อนุมัติแล้ว</span>';
+          else if (a.status === 'ปฏิเสธแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">ปฏิเสธ</span>';
+          else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">รอดำเนินการ</span>';
+
+          const scoreColor = a.score >= 80 ? 'text-emerald-600 font-bold' : (a.score >= 60 ? 'text-amber-600 font-semibold' : 'text-rose-600');
+
+          return `
+            <tr class="hover:bg-zinc-50/60 transition-colors">
+              <td class="px-4 py-3.5 font-mono text-zinc-500 font-medium">${a.id.slice(0, 8)}</td>
+              <td class="px-4 py-3.5">
+                <div class="font-semibold text-zinc-900">${a.adopter_name || 'ผู้ยื่นคำขอ'}</div>
+                <div class="text-[11px] text-zinc-400">${a.adopter_email || ''} • ${a.adopter_phone || ''}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-2">
+                  <img src="${a.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-7 h-7 rounded-md object-cover">
+                  <div>
+                    <div class="font-medium text-zinc-800">${a.dog_name || 'สุนัข'}</div>
+                    <div class="text-[10px] text-zinc-400">${a.dog_code || ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3.5 text-center">
+                <span class="${scoreColor}">${a.score ?? 0}</span> <span class="text-zinc-400 text-[10px]">/ 100</span>
+              </td>
+              <td class="px-4 py-3.5 text-zinc-500">${a.created_at ? a.created_at.split('T')[0] : '-'}</td>
+              <td class="px-4 py-3.5 text-center">${badge}</td>
+              <td class="px-4 py-3.5 text-right">
+                <button onclick="openReviewModal('${a.id}')" class="px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium transition-colors shadow-2xs">
+                  ตรวจสอบ / พิจารณา
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-rose-500">${err.message}</td></tr>`;
+      }
+    }
+
+    function openReviewModal(id) {
+      activeAppId = id;
+      const app = currentAppList.find(a => a.id === id);
+      if (!app) return;
+
+      document.getElementById('modal-title').textContent = `พิจารณาคำขอรหัส: ${app.id.slice(0, 8)}`;
+      document.getElementById('review-reason').value = app.rejection_reason || (app.status === 'อนุมัติแล้ว' ? 'ผ่านเกณฑ์การประเมินสถานที่และความพร้อม' : '');
+
+      const container = document.getElementById('modal-details');
+      container.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 bg-zinc-50 p-4 rounded-xl border border-zinc-200">
+          <div>
+            <p class="text-[11px] text-zinc-400 font-semibold uppercase">ผู้ขอรับเลี้ยง</p>
+            <p class="font-bold text-zinc-900">${app.adopter_name}</p>
+            <p class="text-zinc-600">${app.adopter_email} | ${app.adopter_phone}</p>
+            <p class="text-zinc-500 text-[11px] mt-1">${app.adopter_address || 'ที่อยู่ตามโปรไฟล์'}</p>
+          </div>
+          <div>
+            <p class="text-[11px] text-zinc-400 font-semibold uppercase">สุนัขที่ขอรับเลี้ยง</p>
+            <p class="font-bold text-zinc-900">${app.dog_name} (${app.dog_code})</p>
+            <p class="text-zinc-600">สายพันธุ์: ${app.dog_breed} • เพศ: ${app.dog_gender}</p>
+            <p class="text-[11px] text-zinc-500 mt-1">สถานะสุนัขปัจจุบัน: ${app.dog_status || 'พร้อมหาบ้าน'}</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold uppercase text-zinc-400">คำตอบในแบบฟอร์มประเมินความพร้อม</p>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 bg-white border border-zinc-200 rounded-lg">
+              <span class="text-zinc-400 block text-[10px]">ที่อยู่อาศัย:</span>
+              <strong class="text-zinc-800">${app.housing_type || '-'}</strong>
+            </div>
+            <div class="p-2.5 bg-white border border-zinc-200 rounded-lg">
+              <span class="text-zinc-400 block text-[10px]">รายได้เฉลี่ยต่อเดือน:</span>
+              <strong class="text-zinc-800">${app.income_bracket || '-'}</strong>
+            </div>
+            <div class="p-2.5 bg-white border border-zinc-200 rounded-lg">
+              <span class="text-zinc-400 block text-[10px]">ประสบการณ์การเลี้ยง:</span>
+              <strong class="text-zinc-800">${app.pet_experience || '-'}</strong>
+            </div>
+            <div class="p-2.5 bg-white border border-zinc-200 rounded-lg">
+              <span class="text-zinc-400 block text-[10px]">จำนวนสมาชิกในบ้าน:</span>
+              <strong class="text-zinc-800">${app.family_members || '-'} คน (เห็นชอบทุกคน)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-amber-900">คะแนนประเมินความพร้อมอัตโนมัติ:</span>
+            <p class="text-[11px] text-amber-700">คำนวณจากเกณฑ์สถานที่ + ประสบการณ์ + ความยินยอม</p>
+          </div>
+          <span class="text-lg font-black text-amber-900">${app.score ?? 0} / 100</span>
+        </div>
+      `;
+
+      document.getElementById('review-modal').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.add('hidden');
+      activeAppId = null;
+    }
+
+    async function submitReviewDecision(status) {
+      if (!activeAppId) return;
+      const reason = document.getElementById('review-reason').value.trim();
+
+      try {
+        const res = await API.reviewApplication(activeAppId, status, reason);
+        showToast(res.message || `ดำเนินการ ${status} เรียบร้อยแล้ว`);
+        closeReviewModal();
+        await loadApplications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

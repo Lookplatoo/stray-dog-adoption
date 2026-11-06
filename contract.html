@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สัญญาการรับเลี้ยงสุนัข | ระบบหาบ้านสุนัขจรจัด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="no-print sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            🐕
+          </div>
+          <div>
+            <h1 class="text-base font-semibold text-zinc-900 leading-tight">ระบบหาบ้านสุนัขจรจัด</h1>
+            <p class="text-[11px] text-zinc-400">Stray Dog Adoption Portal</p>
+          </div>
+        </a>
+
+        <!-- Center Nav Links -->
+        <nav class="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl text-xs font-medium">
+          <a href="./index.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ค้นหาสุนัข</a>
+          <a href="./apply.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ยื่นคำขอรับเลี้ยง</a>
+          <a href="./appointment.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ใบนัดหมาย</a>
+          <a href="./contract.html" class="px-3.5 py-1.5 rounded-lg text-zinc-900 bg-white shadow-xs font-semibold">สัญญาการรับเลี้ยง</a>
+          <a href="./followup.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ติดตามผล</a>
+        </nav>
+
+        <!-- Right Actions: Dynamic Auth State -->
+        <div id="navbar-auth-actions" class="flex items-center gap-2.5"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Hero Header -->
+    <div class="no-print flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">สัญญาการรับอุปการะสุนัข</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบเงื่อนไขความรับผิดชอบ และลงนามดิจิทัลเพื่อเสร็จสิ้นกระบวนการรับเลี้ยงอย่างถูกต้องตามกฎหมาย</p>
+      </div>
+    </div>
+
+    <!-- Contracts Container -->
+    <section id="contracts-container" class="space-y-8">
+      <div class="text-center py-8 text-zinc-400 text-sm">กำลังโหลดข้อมูลสัญญา...</div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="no-print bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-500">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
+      <p class="text-[11px] text-zinc-400 mt-1">Stray Dog Adoption and Screening System</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/auth.js"></script>
+
+  <script>
+    async function initPage() {
+      const isAuthed = await checkAuth(['adopter', 'staff', 'admin']);
+      if (!isAuthed) return;
+      await loadContracts();
+    }
+
+    async function loadContracts() {
+      const container = document.getElementById('contracts-container');
+      try {
+        const res = await API.getMyContracts();
+        const contracts = res.data || [];
+
+        if (contracts.length === 0) {
+          container.innerHTML = `
+            <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-10 text-center text-zinc-500">
+              <span class="text-3xl block mb-2">📜</span>
+              <p class="text-sm font-semibold text-zinc-700">ยังไม่มีเอกสารสัญญาการรับเลี้ยงสำหรับบัญชีนี้</p>
+              <p class="text-xs text-zinc-400 mt-1">สัญญาจะถูกจัดทำโดยเจ้าหน้าที่หลังการนัดหมายพบตัวสุนัขเรียบร้อยแล้ว</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = contracts.map(c => renderContractDocument(c)).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 text-center text-rose-500 text-xs">ไม่สามารถโหลดสัญญาได้: ${err.message}</div>`;
+      }
+    }
+
+    function renderContractDocument(c) {
+      const isSigned = c.status === 'ลงนามแล้ว';
+      const stipulations = c.terms ? c.terms.split('\n').filter(t => t.trim()) : [
+        'ผู้รับเลี้ยงยินยอมดูแลเอาใจใส่สุนัขด้วยความเมตตา ไม่ทอดทิ้ง กักขัง หรือทรมาน',
+        'ผู้รับเลี้ยงยินยอมพาเข้ารับการฉีดวัคซีนป้องกันโรคพิษสุนัขบ้า และวัคซีนรวมตามกำหนดทุกปี',
+        'ผู้รับเลี้ยงยินยอมให้เจ้าหน้าที่ของศูนย์ติดตามผลความเป็นอยู่และสุขอนามัยหลังการรับเลี้ยง',
+        'หากไม่สามารถเลี้ยงดูต่อไปได้ ผู้รับเลี้ยงจะต้องแจ้งศูนย์พักพิงและส่งคืน ห้ามนำไปปล่อยทิ้งหรือขายต่อเด็ดขาด'
+      ];
+
+      return `
+        <div class="bg-white rounded-2xl border border-zinc-300 shadow-sm overflow-hidden print-contract-page">
+          
+          <!-- Top Bar for Screen only -->
+          <div class="no-print p-4 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-bold text-zinc-800">สัญญาเลขที่: ${c.contract_code || c.id}</span>
+              ${isSigned 
+                ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ มีผลสมบูรณ์ตามกฎหมาย</span>'
+                : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">✍️ รอผู้รับเลี้ยงลงนาม</span>'
+              }
+            </div>
+            <button onclick="window.print()" class="px-3 py-1.5 rounded-xl border border-zinc-300 bg-white text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors shadow-2xs flex items-center gap-1.5">
+              <span>🖨️</span> พิมพ์สัญญา
+            </button>
+          </div>
+
+          <!-- Official Document Header -->
+          <div class="p-8 sm:p-10 space-y-6 text-zinc-900">
+            
+            <div class="text-center pb-6 border-b border-zinc-200">
+              <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-xl">
+                🐕
+              </div>
+              <h3 class="text-lg font-bold uppercase tracking-tight">หนังสือสัญญาและข้อตกลงการรับอุปการะสุนัขจรจัด</h3>
+              <p class="text-xs text-zinc-500 mt-0.5">สัญญาเลขที่: <span class="font-mono font-bold text-zinc-800">${c.contract_code || c.id}</span> • วันที่ทำสัญญา: ${c.created_at ? c.created_at.split('T')[0] : 'วันนี้'}</p>
+            </div>
+
+            <!-- Parties Information -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-zinc-50/70 p-4 rounded-xl border border-zinc-200 text-xs">
+              <div>
+                <p class="font-bold text-zinc-900 mb-1 text-[11px] uppercase tracking-wider text-zinc-400">คู่สัญญาฝ่ายที่ 1 (ศูนย์พักพิงสุนัขจรจัด)</p>
+                <p><strong>ตัวแทนศูนย์:</strong> เจ้าหน้าที่ฝ่ายจัดหาบ้านและติดตามผล</p>
+                <p><strong>สถานที่:</strong> ศูนย์พักพิงสุนัขจรจัด อ.เมือง จ.ขอนแก่น</p>
+                <p><strong>โทรศัพท์:</strong> 043-999-888</p>
+              </div>
+              <div>
+                <p class="font-bold text-zinc-900 mb-1 text-[11px] uppercase tracking-wider text-zinc-400">คู่สัญญาฝ่ายที่ 2 (ผู้รับอุปการะสุนัข)</p>
+                <p><strong>ชื่อ-สกุล:</strong> ${c.adopter_name || 'ผู้รับเลี้ยง'}</p>
+                <p><strong>อีเมล:</strong> ${c.adopter_email || '-'}</p>
+                <p><strong>เบอร์โทร:</strong> ${c.adopter_phone || '-'}</p>
+              </div>
+            </div>
+
+            <!-- Subject Dog Information -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-500">ข้อมูลสุนัขที่ตกลงส่งมอบการอุปการะ</h4>
+              <div class="flex items-center gap-4 p-4 rounded-xl border border-zinc-200 bg-white">
+                <img src="${c.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'}" class="w-16 h-16 rounded-xl object-cover border border-zinc-100">
+                <div class="text-xs space-y-0.5">
+                  <p class="font-bold text-sm text-zinc-900">${c.dog_name || 'สุนัข'} (รหัส ${c.dog_code || '-'})</p>
+                  <p class="text-zinc-600">สายพันธุ์: ${c.dog_breed || '-'} • เพศ: ${c.dog_gender || '-'} • สี/ลักษณะ: ${c.dog_color || '-'}</p>
+                  <p class="text-emerald-700 font-medium">✓ ตรวจสุขภาพ ทำหมัน และรับวัคซีนพิษสุนัขบ้าแล้ว</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-500">ข้อกำหนดและเงื่อนไขการรับอุปการะสุนัข</h4>
+              <ol class="space-y-2 list-decimal list-inside text-xs text-zinc-700 leading-relaxed bg-zinc-50/50 p-4 rounded-xl border border-zinc-200">
+                ${stipulations.map(item => `<li>${item}</li>`).join('')}
+              </ol>
+            </div>
+
+            <!-- Signatures Section -->
+            <div class="pt-6 border-t border-zinc-200">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 text-center text-xs">
+                
+                <!-- Staff Signature -->
+                <div class="space-y-3 p-4 bg-zinc-50/50 rounded-xl border border-zinc-100">
+                  <p class="text-zinc-500">ลงชื่อ ผู้ส่งมอบ (เจ้าหน้าที่ศูนย์)</p>
+                  <div class="h-14 flex items-center justify-center font-serif italic text-lg text-zinc-800">
+                    เจ้าหน้าที่พิทักษ์สัตว์ (สมศักดิ์ ปานทอง)
+                  </div>
+                  <div class="border-t border-dashed border-zinc-300 pt-1 text-[11px] text-zinc-400">
+                    ฝ่ายจัดหาบ้านและนิติการศูนย์
+                  </div>
+                </div>
+
+                <!-- Adopter Signature -->
+                <div class="space-y-3 p-4 bg-zinc-50/50 rounded-xl border border-zinc-100">
+                  <p class="text-zinc-500">ลงชื่อ ผู้รับอุปการะ</p>
+                  ${isSigned ? `
+                    <div class="h-14 flex flex-col items-center justify-center">
+                      <span class="font-serif italic text-lg font-bold text-emerald-800">${c.signed_name || c.adopter_name}</span>
+                      <span class="text-[10px] text-emerald-600">ลงนามดิจิทัลเมื่อ: ${c.signed_at || 'เรียบร้อย'}</span>
+                    </div>
+                  ` : `
+                    <div class="h-14 flex items-center justify-center text-amber-600 font-medium">
+                      (รอการลงนามดิจิทัลด้านล่าง)
+                    </div>
+                  `}
+                  <div class="border-t border-dashed border-zinc-300 pt-1 text-[11px] text-zinc-400">
+                    ${c.adopter_name || 'ผู้รับอุปการะ'}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Digital Signature Box (if not signed) -->
+            ${!isSigned ? `
+              <div class="no-print mt-6 p-5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-4">
+                <div class="flex items-center gap-2 text-amber-900 font-bold text-xs">
+                  <span>✍️</span> ลงนามดิจิทัลยืนยันข้อตกลง
+                </div>
+                <p class="text-xs text-amber-800">
+                  ข้าพเจ้าได้อ่านและเข้าใจข้อกำหนดในสัญญาทั้งหมดอย่างชัดเจน และขอยืนยันว่าจะปฏิบัติตามทุกประการ
+                </p>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-zinc-700 mb-1">พิมพ์ชื่อ-นามสกุลจริง เพื่อใช้เป็นลายมือชื่อดิจิทัล <span class="text-rose-500">*</span></label>
+                    <input type="text" id="signer-name-${c.id}" value="${c.adopter_name || ''}" class="w-full text-xs rounded-xl border border-zinc-300 bg-white px-3.5 py-2 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900">
+                  </div>
+                  <label class="flex items-start gap-2 cursor-pointer text-xs text-zinc-700">
+                    <input type="checkbox" id="agree-terms-${c.id}" class="mt-0.5 accent-zinc-900">
+                    <span>ข้าพเจ้ายินยอมให้สัญญานี้มีผลผูกพันตามกฎหมาย และตกลงส่งรายงานติดตามผลตามกำหนด</span>
+                  </label>
+                  <button onclick="signContract('${c.id}')" id="btn-sign-${c.id}" class="px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+                    ลงนามและยอมรับสัญญา
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+
+          </div>
+        </div>
+      `;
+    }
+
+    async function signContract(contractId) {
+      const checkbox = document.getElementById(`agree-terms-${contractId}`);
+      if (!checkbox.checked) {
+        showToast('กรุณากาเลือกยินยอมตามข้อกำหนดก่อนลงนาม', 'error');
+        return;
+      }
+
+      const signerInput = document.getElementById(`signer-name-${contractId}`);
+      const signerName = signerInput.value.trim();
+      if (!signerName) {
+        showToast('กรุณากรอกชื่อ-นามสกุลสำหรับลงนาม', 'error');
+        return;
+      }
+
+      const btn = document.getElementById(`btn-sign-${contractId}`);
+      btn.disabled = true;
+      btn.textContent = 'กำลังลงนาม...';
+
+      try {
+        const res = await API.signContract(contractId, { signer_name: signerName });
+        showToast(res.message || 'ลงนามสัญญาสำเร็จเรียบร้อยแล้ว!');
+        await loadContracts();
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'ลงนามและยอมรับสัญญา';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

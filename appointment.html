@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบนัดหมายดูตัวสุนัข | ระบบหาบ้านสุนัขจรจัด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="no-print sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            🐕
+          </div>
+          <div>
+            <h1 class="text-base font-semibold text-zinc-900 leading-tight">ระบบหาบ้านสุนัขจรจัด</h1>
+            <p class="text-[11px] text-zinc-400">Stray Dog Adoption Portal</p>
+          </div>
+        </a>
+
+        <!-- Center Nav Links -->
+        <nav class="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl text-xs font-medium">
+          <a href="./index.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ค้นหาสุนัข</a>
+          <a href="./apply.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ยื่นคำขอรับเลี้ยง</a>
+          <a href="./appointment.html" class="px-3.5 py-1.5 rounded-lg text-zinc-900 bg-white shadow-xs font-semibold">ใบนัดหมาย</a>
+          <a href="./contract.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">สัญญาการรับเลี้ยง</a>
+          <a href="./followup.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ติดตามผล</a>
+        </nav>
+
+        <!-- Right Actions: Dynamic Auth State -->
+        <div id="navbar-auth-actions" class="flex items-center gap-2.5"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Header Hero -->
+    <div class="no-print flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">การนัดหมาย & ใบนัดหมาย</h2>
+        <p class="text-xs text-zinc-500 mt-1">จองวันนัดดูตัวสุนัขหรือตรวจเยี่ยมบ้าน เมื่อคำขอรับเลี้ยงของท่านผ่านการอนุมัติแล้ว</p>
+      </div>
+      <button onclick="document.getElementById('booking-card').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+        + จองวันนัดหมายใหม่
+      </button>
+    </div>
+
+    <!-- Active Appointment Slip Preview (if any confirmed/pending exists) -->
+    <section id="slips-container" class="space-y-6">
+      <div class="text-center py-8 text-zinc-400 text-sm">กำลังโหลดข้อมูลการนัดหมาย...</div>
+    </section>
+
+    <!-- Booking Form Card -->
+    <section id="booking-card" class="no-print bg-white rounded-2xl border border-zinc-200 p-6 shadow-xs space-y-6">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-4">
+        <div>
+          <h3 class="text-base font-bold text-zinc-900">จองวันนัดหมายดูตัวสุนัข / ตรวจเยี่ยมสถานที่</h3>
+          <p class="text-xs text-zinc-500 mt-0.5">เลือกคำขอที่ได้รับการอนุมัติ และระบุวันเวลาที่ท่านสะดวก</p>
+        </div>
+      </div>
+
+      <form id="booking-form" onsubmit="handleBookAppointment(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">เลือกคำขอรับเลี้ยงที่ได้รับการอนุมัติ <span class="text-rose-500">*</span></label>
+          <select id="app-select" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+            <option value="">-- กรุณาเลือกคำขอรับเลี้ยง --</option>
+          </select>
+          <p class="text-[11px] text-zinc-400 mt-1">เฉพาะคำขอที่เจ้าหน้าที่ตรวจสอบและ "อนุมัติแล้ว" เท่านั้นจึงจะสามารถนัดหมายได้</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">วันที่นัดหมาย <span class="text-rose-500">*</span></label>
+            <input type="date" id="appt-date" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">ช่วงเวลานัดหมาย <span class="text-rose-500">*</span></label>
+            <select id="appt-time" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+              <option value="09:30 - 11:30 น.">รอบเช้า (09:30 - 11:30 น.)</option>
+              <option value="13:30 - 15:30 น.">รอบบ่าย (13:30 - 15:30 น.)</option>
+              <option value="15:30 - 17:00 น.">รอบเย็น (15:30 - 17:00 น.)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">ประเภทการนัดหมาย <span class="text-rose-500">*</span></label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 cursor-pointer hover:bg-zinc-50 has-[:checked]:border-zinc-900 has-[:checked]:bg-zinc-50">
+              <input type="radio" name="appt_type" value="นัดหมายสัมภาษณ์" checked class="accent-zinc-900">
+              <div>
+                <p class="text-xs font-semibold text-zinc-800">นัดหมายสัมภาษณ์</p>
+                <p class="text-[11px] text-zinc-500">เข้าพบและสัมภาษณ์ดูตัวสุนัขที่ศูนย์พักพิง</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 cursor-pointer hover:bg-zinc-50 has-[:checked]:border-zinc-900 has-[:checked]:bg-zinc-50">
+              <input type="radio" name="appt_type" value="นัดหมายเยี่ยมบ้าน" class="accent-zinc-900">
+              <div>
+                <p class="text-xs font-semibold text-zinc-800">นัดหมายเยี่ยมบ้าน</p>
+                <p class="text-[11px] text-zinc-500">เจ้าหน้าที่เดินทางตรวจประเมินสถานที่เลี้ยงจริง</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">หมายเหตุหรือข้อความถึงเจ้าหน้าที่ (ถ้ามี)</label>
+          <textarea id="appt-notes" rows="2" placeholder="เช่น จะพาเด็กๆ หรือสุนัขเดิมมาทดลองเข้าสังคมด้วย..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" id="btn-submit-appt" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+            ยืนยันการจองวันนัดหมาย
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="no-print bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-500">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
+      <p class="text-[11px] text-zinc-400 mt-1">Stray Dog Adoption and Screening System</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/auth.js"></script>
+
+  <script>
+    // Set min date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('appt-date').min = tomorrow.toISOString().split('T')[0];
+    document.getElementById('appt-date').value = tomorrow.toISOString().split('T')[0];
+
+    async function initPage() {
+      const isAuthed = await checkAuth(['adopter', 'staff', 'admin']);
+      if (!isAuthed) return;
+      await loadUserAppointments();
+      await loadApprovedApplications();
+    }
+
+    async function loadApprovedApplications() {
+      try {
+        const res = await API.getMyApplications();
+        const select = document.getElementById('app-select');
+        select.innerHTML = '<option value="">-- กรุณาเลือกคำขอรับเลี้ยง --</option>';
+        
+        const approved = (res.data || []).filter(a => a.status === 'อนุมัติแล้ว');
+        if (approved.length === 0) {
+          select.innerHTML += '<option disabled value="">(ยังไม่มีคำขอที่ได้รับการอนุมัติ - กรุณายื่นคำขอก่อน)</option>';
+          return;
+        }
+
+        approved.forEach(app => {
+          const opt = document.createElement('option');
+          opt.value = app.id;
+          opt.textContent = `รหัส ${app.id} - ${app.dog_name} (${app.dog_code} - ${app.dog_breed})`;
+          opt.dataset.dogId = app.dog_id;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadUserAppointments() {
+      const container = document.getElementById('slips-container');
+      try {
+        const res = await API.getMyAppointments();
+        const appts = res.data || [];
+
+        if (appts.length === 0) {
+          container.innerHTML = `
+            <div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 text-center text-zinc-500">
+              <span class="text-3xl block mb-2">📅</span>
+              <p class="text-sm font-semibold text-zinc-700">ท่านยังไม่มีรายการนัดหมายในระบบ</p>
+              <p class="text-xs text-zinc-400 mt-1">เมื่อคำขอรับเลี้ยงได้รับการอนุมัติ ท่านสามารถจองวันนัดหมายด้านล่างได้ทันที</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = appts.map(a => renderAppointmentCard(a)).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 text-center text-rose-500 text-xs">ไม่สามารถโหลดข้อมูลนัดหมายได้: ${err.message}</div>`;
+      }
+    }
+
+    function renderAppointmentCard(a) {
+      const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว';
+      const isPending = a.status === 'รอดำเนินการ' || a.status === 'รออนุมัติ';
+      const isCompleted = a.status === 'เสร็จสิ้น' || a.status === 'ดำเนินการแล้ว';
+      const isCancelled = a.status === 'ยกเลิกแล้ว';
+
+      let statusBadge = '';
+      if (isConfirmed) statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ ยืนยันนัดหมายแล้ว</span>';
+      else if (isPending) statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">⏳ รอเจ้าหน้าที่ยืนยัน</span>';
+      else if (isCompleted) statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">✓ พบตัวสุนัขเรียบร้อย</span>';
+      else statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-600">✕ ยกเลิกแล้ว</span>';
+
+      return `
+        <div class="bg-white rounded-2xl border ${isConfirmed ? 'border-emerald-300 shadow-md ring-1 ring-emerald-100' : 'border-zinc-200 shadow-xs'} overflow-hidden">
+          
+          <!-- Top Slip Header -->
+          <div class="p-6 border-b border-zinc-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-50/50">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-base">
+                📋
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-base font-bold text-zinc-900">ใบนัดหมาย: ${a.appointment_code || a.id}</h4>
+                  ${statusBadge}
+                </div>
+                <p class="text-xs text-zinc-500 mt-0.5">ประเภท: <span class="font-medium text-zinc-700">${a.appointment_type || 'ดูตัวที่ศูนย์พักพิง'}</span></p>
+              </div>
+            </div>
+
+            <!-- Print & Action buttons -->
+            <div class="no-print flex items-center gap-2">
+              <button onclick="window.print()" class="px-3.5 py-1.5 rounded-xl border border-zinc-300 text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors flex items-center gap-1.5 shadow-2xs">
+                <span>🖨️</span> พิมพ์ใบนัดหมาย
+              </button>
+              ${isPending ? `
+                <button onclick="cancelAppt('${a.id}')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors">
+                  ยกเลิกนัด
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Slip Details Body (Print friendly) -->
+          <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Column 1: Dog Info -->
+            <div class="space-y-3">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">ข้อมูลสุนัขที่นัดพบ</p>
+              <div class="flex items-center gap-3 bg-zinc-50 p-3 rounded-xl border border-zinc-100">
+                <img src="${a.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'}" class="w-14 h-14 rounded-lg object-cover">
+                <div>
+                  <h5 class="text-sm font-bold text-zinc-900">${a.dog_name || 'สุนัข'}</h5>
+                  <p class="text-xs text-zinc-500">${a.dog_code || ''} • ${a.dog_breed || ''}</p>
+                  <p class="text-[11px] text-zinc-400">เพศ ${a.dog_gender || '-'} | วัย ${a.dog_age || '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: Date & Location -->
+            <div class="space-y-3">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">วัน เวลา และสถานที่</p>
+              <div class="space-y-1.5 text-xs text-zinc-700">
+                <p><span class="text-zinc-400">📅 วันที่:</span> <strong class="text-zinc-900">${a.appointment_date || '-'}</strong></p>
+                <p><span class="text-zinc-400">⏰ เวลา:</span> <strong class="text-zinc-900">${a.appointment_time || '-'}</strong></p>
+                <p><span class="text-zinc-400">📍 สถานที่:</span> ศูนย์พักพิงและฟื้นฟูสุนัขจรจัด ถ.มิตรภาพ อ.เมือง จ.ขอนแก่น</p>
+                <p><span class="text-zinc-400">📞 โทร:</span> 043-999-888 (ฝ่ายจัดหาบ้าน)</p>
+              </div>
+            </div>
+
+            <!-- Column 3: Verification & QR code placeholder -->
+            <div class="flex flex-col items-center justify-center p-4 bg-zinc-50 rounded-xl border border-zinc-100 text-center">
+              <div class="w-24 h-24 bg-white p-2 rounded-lg border border-zinc-200 shadow-2xs flex items-center justify-center text-3xl font-mono">
+                📱
+              </div>
+              <p class="text-[11px] font-semibold text-zinc-700 mt-2">แสดงใบนัดหมายแก่เจ้าหน้าที่</p>
+              <p class="text-[10px] text-zinc-400">Ref: ${a.id.slice(0, 8)}</p>
+            </div>
+
+          </div>
+
+          <!-- Slip Footer Instructions -->
+          <div class="px-6 py-3 bg-zinc-50 border-t border-zinc-100 text-[11px] text-zinc-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>💡 กรุณาเดินทางมาถึงก่อนเวลานัดหมาย 10 นาที พร้อมนำบัตรประชาชนตัวจริงมาแสดง</span>
+            <span class="text-zinc-400">สถานะ: ${a.status}</span>
+          </div>
+
+        </div>
+      `;
+    }
+
+    async function handleBookAppointment(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-appt');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึกนัดหมาย...';
+
+      const appSelect = document.getElementById('app-select');
+      const selectedAppId = appSelect.value;
+      const selectedDogId = appSelect.options[appSelect.selectedIndex]?.dataset.dogId;
+
+      const payload = {
+        application_id: selectedAppId,
+        dog_id: selectedDogId,
+        appointment_date: document.getElementById('appt-date').value,
+        appointment_time: document.getElementById('appt-time').value,
+        appointment_type: document.querySelector('input[name="appt_type"]:checked').value,
+        notes: document.getElementById('appt-notes').value
+      };
+
+      try {
+        const res = await API.bookAppointment(payload);
+        showToast(res.message || 'จองนัดหมายสำเร็จ! รอเจ้าหน้าที่ยืนยัน');
+        document.getElementById('booking-form').reset();
+        await loadUserAppointments();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันการจองวันนัดหมาย';
+      }
+    }
+
+    async function cancelAppt(id) {
+      if (!confirm('ท่านต้องการยกเลิกนัดหมายนี้ใช่หรือไม่?')) return;
+      try {
+        const res = await API.updateAppointmentStatus(id, 'ยกเลิกแล้ว', 'ผู้ขอรับเลี้ยงขอยกเลิกนัดหมาย');
+        showToast(res.message || 'ยกเลิกนัดหมายเรียบร้อยแล้ว');
+        await loadUserAppointments();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

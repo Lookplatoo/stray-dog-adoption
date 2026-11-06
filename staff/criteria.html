@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบผู้ดูแล | ตั้งค่าแบบฟอร์มประเมินความพร้อม</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบผู้ดูแลระบบ</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Admin Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./users.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">👥 จัดการบัญชีผู้ใช้</a>
+      <a href="./criteria.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">⚙️ ตั้งค่าแบบฟอร์มประเมินความพร้อม</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div>
+      <h2 class="text-xl font-bold text-zinc-900">กำหนดเกณฑ์ประเมินความพร้อมและตั้งค่าแบบฟอร์ม</h2>
+      <p class="text-xs text-zinc-500 mt-1">กำหนดคะแนนผ่านเกณฑ์ขั้นต่ำ และค่าน้ำหนักการคัดกรองผู้ขอรับเลี้ยง</p>
+    </div>
+
+    <form id="criteria-form" onsubmit="handleSaveCriteria(event)" class="space-y-6">
+      
+      <!-- Passing Score Card -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h3 class="text-sm font-bold text-zinc-900">คะแนนประเมินผ่านเกณฑ์ขั้นต่ำ (Minimum Passing Score)</h3>
+            <p class="text-xs text-zinc-500 mt-0.5">คำขอที่ได้คะแนนถึงเกณฑ์นี้จะได้รับการแนะนำให้อนุมัติในขั้นตอนการคัดกรองคำขอรับเลี้ยง</p>
+          </div>
+          <span class="text-lg font-black text-blue-600" id="score-display">70 คะแนน</span>
+        </div>
+
+        <div class="space-y-2">
+          <input type="range" id="min-score" min="40" max="95" step="5" value="70" oninput="document.getElementById('score-display').textContent = this.value + ' คะแนน'" class="w-full accent-zinc-900 cursor-pointer">
+          <div class="flex justify-between text-[11px] text-zinc-400">
+            <span>ผ่อนปรน (40 คะแนน)</span>
+            <span>เกณฑ์มาตรฐาน (70 คะแนน)</span>
+            <span>เข้มงวดสูง (95 คะแนน)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weights Breakdown -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4 text-xs">
+        <h3 class="text-sm font-bold text-zinc-900">น้ำหนักคะแนนการประเมิน 4 มิติ (รวม 100 คะแนน)</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-zinc-800">1. มิติสถานที่อยู่อาศัย</span>
+              <span class="font-bold text-emerald-600">30 คะแนน</span>
+            </div>
+            <p class="text-zinc-500 text-[11px]">บ้านเดี่ยวมีรั้วมิดชิด (30) / สวนหรือฟาร์ม (30) / ทาวน์เฮ้าส์ (20) / คอนโด (10)</p>
+          </div>
+
+          <div class="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-zinc-800">2. มิติความพร้อมและเวลา</span>
+              <span class="font-bold text-emerald-600">25 คะแนน</span>
+            </div>
+            <p class="text-zinc-500 text-[11px]">รายได้มากกว่า 30,000 บ. (25) / 15,000 - 30,000 บ. (20) / ต่ำกว่า 15,000 บ. (10)</p>
+          </div>
+
+          <div class="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-zinc-800">3. มิติประสบการณ์เลี้ยงดู</span>
+              <span class="font-bold text-emerald-600">20 คะแนน</span>
+            </div>
+            <p class="text-zinc-500 text-[11px]">เคยเลี้ยงมากกว่า 3 ปี (20) / เคยเลี้ยง 1-3 ปี (18) / ผู้เลี้ยงมือใหม่ (15)</p>
+          </div>
+
+          <div class="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-zinc-800">4. สมาชิกและความยินยอม</span>
+              <span class="font-bold text-emerald-600">25 คะแนน</span>
+            </div>
+            <p class="text-zinc-500 text-[11px]">สมาชิกทุกคนเห็นชอบ + ยินยอมให้ติดตามผลและฉีดวัคซีนตามเกณฑ์สวัสดิภาพสัตว์</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" id="btn-save-criteria" class="px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+          บันทึกการตั้งค่าเกณฑ์ประเมิน
+        </button>
+      </div>
+
+    </form>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    async function initPage() {
+      const isAuthed = await requireRole(['admin']);
+      if (!isAuthed) return;
+      await loadCriteria();
+    }
+
+    async function loadCriteria() {
+      try {
+        const res = await API.getCriteria();
+        const score = res.data?.min_score || 70;
+        document.getElementById('min-score').value = score;
+        document.getElementById('score-display').textContent = score + ' คะแนน';
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function handleSaveCriteria(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-save-criteria');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const minScore = parseInt(document.getElementById('min-score').value);
+
+      try {
+        const res = await API.updateCriteria({ min_score: minScore });
+        showToast(res.message || 'บันทึกเกณฑ์การประเมินเรียบร้อยแล้ว');
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกการตั้งค่าเกณฑ์ประเมิน';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ค้นหาสุนัขจรจัดที่พร้อมหาบ้าน | ระบบหาบ้านสุนัขจรจัด</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            🐕
+          </div>
+          <div>
+            <h1 class="text-base font-semibold text-zinc-900 leading-tight">ระบบหาบ้านสุนัขจรจัด</h1>
+            <p class="text-[11px] text-zinc-400">Stray Dog Adoption Portal</p>
+          </div>
+        </a>
+
+        <!-- Center Nav Links -->
+        <nav class="hidden md:flex items-center gap-1 bg-zinc-100 p-1 rounded-xl text-xs font-medium">
+          <a href="./index.html" class="px-3.5 py-1.5 rounded-lg text-zinc-900 bg-white shadow-xs font-semibold">ค้นหาสุนัข</a>
+          <a href="./apply.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ยื่นคำขอรับเลี้ยง</a>
+          <a href="./appointment.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ใบนัดหมาย</a>
+          <a href="./contract.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">สัญญาการรับเลี้ยง</a>
+          <a href="./followup.html" class="px-3.5 py-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 transition-colors">ติดตามผล</a>
+        </nav>
+
+        <!-- Right Actions: Dynamic Auth State -->
+        <div id="navbar-auth-actions" class="flex items-center gap-2.5"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Search & Filter Card -->
+    <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-zinc-900">ค้นหาสุนัขที่รอคอยบ้านใหม่</h2>
+          <p class="text-xs text-zinc-500">เลือกค้นหาตามสายพันธุ์ ช่วงอายุ และเพศ เพื่อพบสุนัขที่เหมาะกับครอบครัวคุณ</p>
+        </div>
+        <span id="dog-count-badge" class="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600 font-medium">กำลังโหลด...</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-600 mb-1">สายพันธุ์</label>
+          <select id="filter-breed" onchange="loadDogs()" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800 focus:bg-white transition-all">
+            <option value="ทุกสายพันธุ์">ทุกสายพันธุ์</option>
+            <option value="ผสมไทย">ผสมไทย (Thai Mix)</option>
+            <option value="ไทยบางแก้ว">ไทยบางแก้ว</option>
+            <option value="ไทยหลังอาน">ไทยหลังอาน</option>
+            <option value="ผสมโกลเด้น">ผสมโกลเด้น</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-600 mb-1">ช่วงอายุ</label>
+          <select id="filter-age" onchange="loadDogs()" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800 focus:bg-white transition-all">
+            <option value="ทุกช่วงอายุ">ทุกช่วงอายุ</option>
+            <option value="น้อยกว่า 1 ปี">ลูกสุนัข (&lt; 1 ปี)</option>
+            <option value="1 - 3 ปี">วัยรุ่น (1 - 3 ปี)</option>
+            <option value="มากกว่า 3 ปี">โตเต็มวัย (&gt; 3 ปี)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-zinc-600 mb-1">เพศ</label>
+          <select id="filter-gender" onchange="loadDogs()" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800 focus:bg-white transition-all">
+            <option value="ทุกเพศ">ทุกเพศ</option>
+            <option value="ผู้">เพศผู้</option>
+            <option value="เมีย">เพศเมีย</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dogs Grid Container -->
+    <div id="dogs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- Populated by JavaScript via REST API -->
+      <div class="col-span-full py-12 text-center text-xs text-zinc-400">กำลังโหลดข้อมูลสุนัขจากฐานข้อมูล...</div>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-zinc-200 py-6 mt-12 text-center text-xs text-zinc-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 Stray Dog Adoption System | วิชา ITDS262 Software Engineering Lab</p>
+      <div class="flex items-center gap-4">
+        <a href="./login.html" class="hover:underline">เข้าสู่ระบบ / สมัครสมาชิก</a>
+        <span>•</span>
+        <a href="./staff/index.html" class="text-zinc-700 font-semibold hover:underline">Staff Console ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script>
+    async function loadDogs() {
+      const breed = document.getElementById('filter-breed').value;
+      const age = document.getElementById('filter-age').value;
+      const gender = document.getElementById('filter-gender').value;
+
+      let query = `?breed=${encodeURIComponent(breed)}&age=${encodeURIComponent(age)}&gender=${encodeURIComponent(gender)}`;
+      
+      try {
+        const res = await api.getDogs(query);
+        const container = document.getElementById('dogs-grid');
+        document.getElementById('dog-count-badge').textContent = `แสดง ${res.dogs.length} ตัว`;
+
+        if (res.dogs.length === 0) {
+          container.innerHTML = '<div class="col-span-full py-12 text-center text-xs text-zinc-400">ไม่พบสุนัขที่ตรงกับเงื่อนไข</div>';
+          return;
+        }
+
+        container.innerHTML = res.dogs.map(d => `
+          <div class="group bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+            <div>
+              <div class="relative aspect-4/3 overflow-hidden bg-zinc-100">
+                <img src="${d.image}" alt="${d.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                <span class="absolute top-2.5 right-2.5 badge-subtle ${d.status === 'พร้อมรับเลี้ยง' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : (d.status === 'ได้บ้านแล้ว' ? 'bg-zinc-900 text-white' : 'bg-amber-50 text-amber-700 border border-amber-200')}">
+                  ${d.status}
+                </span>
+                <span class="absolute bottom-2.5 left-2.5 bg-black/60 text-white font-mono text-[10px] px-2 py-0.5 rounded-md backdrop-blur-xs">
+                  ${d.id}
+                </span>
+              </div>
+
+              <div class="p-4 space-y-2">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-bold text-base text-zinc-900">${d.name}</h3>
+                  <span class="text-xs text-zinc-500">${d.gender === 'ผู้' ? '♂ เพศผู้' : '♀ เพศเมีย'}</span>
+                </div>
+                <p class="text-xs text-zinc-500 font-medium">${d.breed} • อายุ ${d.age}</p>
+                <p class="text-xs text-zinc-600 line-clamp-2 leading-relaxed bg-zinc-50 p-2 rounded-xl border border-zinc-100">${d.health}</p>
+              </div>
+            </div>
+
+            <div class="p-4 pt-0">
+              ${d.status === 'พร้อมรับเลี้ยง' 
+                ? `<a href="./apply.html?dog_id=${d.id}" class="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold text-center block transition-colors shadow-xs">ยื่นขอรับเลี้ยงสุนัขตัวนี้ →</a>`
+                : `<button disabled class="w-full py-2.5 rounded-xl bg-zinc-100 text-zinc-400 text-xs font-medium cursor-not-allowed">ไม่สามารถยื่นขอได้ (${d.status})</button>`
+              }
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast('ไม่สามารถดึงข้อมูลสุนัขได้: ' + err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await checkAuth();
+      await loadDogs();
+    });
+  </script>
+</body>
+</html>

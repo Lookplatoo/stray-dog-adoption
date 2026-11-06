@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเจ้าหน้าที่ | จัดการทะเบียนสุนัข</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบเจ้าหน้าที่ศูนย์พักพิง</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Staff Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📋 คัดกรองคำขอ</a>
+      <a href="./appointments.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📅 ตารางนัดหมาย</a>
+      <a href="./contracts.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📜 สัญญาการรับเลี้ยง</a>
+      <a href="./followups.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🔍 ตรวจติดตามผล</a>
+      <a href="./dogs.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">🐕 จัดการสุนัข</a>
+      <a href="./stats.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📊 รายงานสถิติ</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">ทะเบียนประวัติสุนัขจรจัด</h2>
+        <p class="text-xs text-zinc-500 mt-1">ลงทะเบียนสุนัขใหม่ ปรับปรุงประวัติสุขภาพ และตรวจสอบรายการสุนัขทั้งหมด</p>
+      </div>
+      <button onclick="openDogModal('add')" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+        + ลงทะเบียนสุนัขใหม่
+      </button>
+    </div>
+
+    <!-- Dogs Table -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3.5">สุนัข</th>
+              <th class="px-4 py-3.5">สายพันธุ์ / อายุ / เพศ</th>
+              <th class="px-4 py-3.5">ประวัติสุขภาพ & การทำหมัน</th>
+              <th class="px-4 py-3.5 text-center">สถานะปัจจุบัน</th>
+              <th class="px-4 py-3.5 text-right">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="dogs-table-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr>
+              <td colspan="5" class="px-4 py-8 text-center text-zinc-400">กำลังโหลดทะเบียนสุนัข...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= DOG MODAL (Add / Edit) ================= -->
+  <div id="dog-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <h3 class="text-base font-bold text-zinc-900" id="dog-modal-title">ลงทะเบียนสุนัข</h3>
+        <button onclick="closeDogModal()" class="text-zinc-400 hover:text-zinc-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="dog-form" onsubmit="handleSaveDog(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="dog-id">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">รหัสสุนัข <span class="text-rose-500">*</span></label>
+            <input type="text" id="dog-code" required placeholder="D-005" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800">
+          </div>
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">ชื่อสุนัข <span class="text-rose-500">*</span></label>
+            <input type="text" id="dog-name" required placeholder="เจ้าตูบ" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">สายพันธุ์</label>
+            <input type="text" id="dog-breed" required placeholder="ผสมไทย" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800">
+          </div>
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">เพศ</label>
+            <select id="dog-gender" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800">
+              <option value="ผู้">ผู้</option>
+              <option value="เมีย">เมีย</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">ช่วงอายุ</label>
+            <select id="dog-age" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-800">
+              <option value="น้อยกว่า 1 ปี">น้อยกว่า 1 ปี</option>
+              <option value="1 - 3 ปี">1 - 3 ปี</option>
+              <option value="มากกว่า 3 ปี">มากกว่า 3 ปี</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">สีและลักษณะเด่น</label>
+            <input type="text" id="dog-color" placeholder="สีน้ำตาล ขนสั้น ลายเสือ" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800">
+          </div>
+          <div>
+            <label class="block font-semibold text-zinc-700 mb-1">สถานะสุนัข</label>
+            <select id="dog-status" class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800">
+              <option value="พร้อมหาบ้าน">พร้อมหาบ้าน</option>
+              <option value="มีผู้จองแล้ว">มีผู้จองแล้ว</option>
+              <option value="รับเลี้ยงแล้ว">รับเลี้ยงแล้ว</option>
+              <option value="ระงับการหาบ้าน">ระงับการหาบ้าน</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1">ลิงก์รูปภาพ (Image URL)</label>
+          <input type="url" id="dog-image" placeholder="https://images.unsplash.com/..." class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1">ประวัติสุขภาพและวัคซีน (Health Record)</label>
+          <textarea id="dog-health" rows="2" placeholder="ฉีดวัคซีนพิษสุนัขบ้า, ถ่ายพยาธิแล้ว..." class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-zinc-800"></textarea>
+        </div>
+
+        <div class="flex items-center gap-6 pt-1">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="dog-vaccinated" class="accent-zinc-900">
+            <span>ได้รับวัคซีนครบถ้วน</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="dog-neutered" class="accent-zinc-900">
+            <span>ทำหมันแล้ว</span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
+          <button type="button" onclick="closeDogModal()" class="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-100 font-medium">ยกเลิก</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 shadow-2xs">
+            บันทึกข้อมูลสุนัข
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    let cachedDogs = [];
+
+    async function initPage() {
+      const isAuthed = await requireRole(['staff']);
+      if (!isAuthed) return;
+      await loadDogs();
+    }
+
+    async function loadDogs() {
+      const tbody = document.getElementById('dogs-table-body');
+      try {
+        const res = await API.getDogs();
+        const list = res.data || [];
+        cachedDogs = list;
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-zinc-400">ยังไม่มีสุนัขในทะเบียน</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(d => {
+          let badge = '';
+          if (d.status === 'พร้อมหาบ้าน') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">พร้อมหาบ้าน</span>';
+          else if (d.status === 'รับเลี้ยงแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">รับเลี้ยงแล้ว</span>';
+          else badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-700">${d.status}</span>`;
+
+          return `
+            <tr class="hover:bg-zinc-50/60 transition-colors">
+              <td class="px-4 py-3.5">
+                <div class="flex items-center gap-3">
+                  <img src="${d.image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-10 h-10 rounded-xl object-cover">
+                  <div>
+                    <div class="font-bold text-zinc-900">${d.name}</div>
+                    <div class="font-mono text-[11px] text-zinc-400">${d.code}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="font-medium text-zinc-800">${d.breed}</div>
+                <div class="text-[11px] text-zinc-400">เพศ ${d.gender} • วัย ${d.age}</div>
+              </td>
+              <td class="px-4 py-3.5">
+                <div class="text-zinc-600 line-clamp-1">${d.health_record || 'สุขภาพดี'}</div>
+                <div class="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
+                  <span>${d.vaccinated ? '✓ วัคซีนครบ' : '✕ ยังไม่ครบ'}</span>
+                  <span>•</span>
+                  <span>${d.neutered ? '✓ ทำหมันแล้ว' : '✕ ยังไม่ทำหมัน'}</span>
+                </div>
+              </td>
+              <td class="px-4 py-3.5 text-center">${badge}</td>
+              <td class="px-4 py-3.5 text-right">
+                <button onclick="openDogModal('edit', '${d.id}')" class="px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium shadow-2xs">
+                  ✏️ แก้ไข
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-rose-500">${err.message}</td></tr>`;
+      }
+    }
+
+    function openDogModal(mode, id) {
+      const modal = document.getElementById('dog-modal');
+      const form = document.getElementById('dog-form');
+      form.reset();
+
+      if (mode === 'add') {
+        document.getElementById('dog-modal-title').textContent = 'ลงทะเบียนสุนัขใหม่';
+        document.getElementById('dog-id').value = '';
+        document.getElementById('dog-code').value = 'D-' + String(Math.floor(100 + Math.random() * 900));
+        document.getElementById('dog-image').value = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500';
+      } else {
+        document.getElementById('dog-modal-title').textContent = 'แก้ไขข้อมูลสุนัข';
+        const dog = cachedDogs.find(d => d.id === id);
+        if (!dog) return;
+
+        document.getElementById('dog-id').value = dog.id;
+        document.getElementById('dog-code').value = dog.code;
+        document.getElementById('dog-name').value = dog.name;
+        document.getElementById('dog-breed').value = dog.breed;
+        document.getElementById('dog-gender').value = dog.gender;
+        document.getElementById('dog-age').value = dog.age;
+        document.getElementById('dog-color').value = dog.color || '';
+        document.getElementById('dog-status').value = dog.status;
+        document.getElementById('dog-image').value = dog.image_url || '';
+        document.getElementById('dog-health').value = dog.health_record || '';
+        document.getElementById('dog-vaccinated').checked = !!dog.vaccinated;
+        document.getElementById('dog-neutered').checked = !!dog.neutered;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeDogModal() {
+      document.getElementById('dog-modal').classList.add('hidden');
+    }
+
+    async function handleSaveDog(e) {
+      e.preventDefault();
+      const id = document.getElementById('dog-id').value;
+      const payload = {
+        code: document.getElementById('dog-code').value.trim(),
+        name: document.getElementById('dog-name').value.trim(),
+        breed: document.getElementById('dog-breed').value.trim(),
+        gender: document.getElementById('dog-gender').value,
+        age: document.getElementById('dog-age').value,
+        color: document.getElementById('dog-color').value.trim(),
+        status: document.getElementById('dog-status').value,
+        image_url: document.getElementById('dog-image').value.trim(),
+        health_record: document.getElementById('dog-health').value.trim(),
+        vaccinated: document.getElementById('dog-vaccinated').checked ? 1 : 0,
+        neutered: document.getElementById('dog-neutered').checked ? 1 : 0
+      };
+
+      try {
+        if (id) {
+          const res = await API.updateDog(id, payload);
+          showToast(res.message || 'แก้ไขข้อมูลสุนัขสำเร็จ');
+        } else {
+          const res = await API.addDog(payload);
+          showToast(res.message || 'เพิ่มสุนัขลงทะเบียนใหม่สำเร็จ');
+        }
+        closeDogModal();
+        await loadDogs();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

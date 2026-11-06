@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเจ้าหน้าที่ | รายงานสถิติและผลการดำเนินงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-zinc-50">
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="sticky top-0 z-30 bg-zinc-900 text-white border-b border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center font-bold text-base">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-bold tracking-tight">ระบบเจ้าหน้าที่ศูนย์พักพิง</h1>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Staff Console</span>
+            </div>
+            <p class="text-[11px] text-zinc-400">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด</p>
+          </div>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div id="staff-auth-actions" class="flex items-center gap-3"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= SUB NAVIGATION ================= -->
+  <nav class="bg-white border-b border-zinc-200 sticky top-16 z-20 overflow-x-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📋 คัดกรองคำขอ</a>
+      <a href="./appointments.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📅 ตารางนัดหมาย</a>
+      <a href="./contracts.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">📜 สัญญาการรับเลี้ยง</a>
+      <a href="./followups.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🔍 ตรวจติดตามผล</a>
+      <a href="./dogs.html" class="px-3 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">🐕 จัดการสุนัข</a>
+      <a href="./stats.html" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold">📊 รายงานสถิติ</a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-zinc-900">รายงานสถิติและผลการดำเนินงานของศูนย์พักพิง</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตัวชี้วัดประสิทธิภาพการจัดหาบ้าน อัตราการอนุมัติคำขอ และสถานะการติดตามผล</p>
+      </div>
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-semibold shadow-2xs flex items-center gap-1.5">
+        <span>🖨️</span> พิมพ์รายงานสรุป
+      </button>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
+        <span class="text-xs text-zinc-400 font-medium">สุนัขทั้งหมดในความดูแล</span>
+        <div class="text-2xl font-black text-zinc-900" id="kpi-dogs-total">0</div>
+        <p class="text-[11px] text-zinc-500">รวมทุกสายพันธุ์ในศูนย์</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
+        <span class="text-xs text-emerald-600 font-medium">ได้บ้านใหม่แล้ว (Adopted)</span>
+        <div class="text-2xl font-black text-emerald-600" id="kpi-dogs-adopted">0</div>
+        <p class="text-[11px] text-zinc-500">ทำสัญญาและส่งมอบสมบูรณ์</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
+        <span class="text-xs text-blue-600 font-medium">คำขอรับเลี้ยงทั้งหมด</span>
+        <div class="text-2xl font-black text-blue-600" id="kpi-apps-total">0</div>
+        <p class="text-[11px] text-zinc-500">สะสมในระบบทั้งหมด</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
+        <span class="text-xs text-purple-600 font-medium">อัตราความสำเร็จหาบ้าน</span>
+        <div class="text-2xl font-black text-purple-600" id="kpi-success-rate">0%</div>
+        <p class="text-[11px] text-zinc-500">Adopted / Total Dogs</p>
+      </div>
+    </div>
+
+    <!-- Detailed Charts & Breakdowns -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Dog Status Breakdown Card -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold text-zinc-900">การกระจายสถานะของสุนัข (Dog Inventory)</h3>
+        <div class="space-y-3 text-xs">
+          <div>
+            <div class="flex justify-between text-zinc-700 mb-1">
+              <span>พร้อมหาบ้าน (Available)</span>
+              <strong id="bar-avail-val">0</strong>
+            </div>
+            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
+              <div id="bar-avail-fill" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-zinc-700 mb-1">
+              <span>รับเลี้ยงแล้ว (Adopted)</span>
+              <strong id="bar-adopt-val">0</strong>
+            </div>
+            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
+              <div id="bar-adopt-fill" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-zinc-700 mb-1">
+              <span>มีผู้จองแล้ว (Reserved)</span>
+              <strong id="bar-res-val">0</strong>
+            </div>
+            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
+              <div id="bar-res-fill" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Screening Metrics -->
+      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold text-zinc-900">ประสิทธิภาพการคัดกรองคำขอ (Screening Efficiency)</h3>
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+            <span class="text-zinc-400 block text-[11px]">อนุมัติคำขอแล้ว</span>
+            <strong class="text-base text-emerald-600" id="stat-apps-approved">0</strong>
+          </div>
+          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+            <span class="text-zinc-400 block text-[11px]">ปฏิเสธคำขอ</span>
+            <strong class="text-base text-rose-600" id="stat-apps-rejected">0</strong>
+          </div>
+          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+            <span class="text-zinc-400 block text-[11px]">สัญญาที่ลงนามแล้ว</span>
+            <strong class="text-base text-purple-600" id="stat-contracts-signed">0</strong>
+          </div>
+          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+            <span class="text-zinc-400 block text-[11px]">รายงานติดตามผลที่ส่งแล้ว</span>
+            <strong class="text-base text-blue-600" id="stat-followups-count">0</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../assets/js/toast.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/auth.js"></script>
+
+  <script>
+    async function initPage() {
+      const isAuthed = await requireRole(['staff']);
+      if (!isAuthed) return;
+      await loadStats();
+    }
+
+    async function loadStats() {
+      try {
+        const res = await API.getStats();
+        const data = res.data || {};
+
+        const totalDogs = data.total_dogs || 0;
+        const adoptedDogs = data.adopted_dogs || 0;
+        const availableDogs = data.available_dogs || 0;
+        const reservedDogs = data.reserved_dogs || 0;
+        const totalApps = data.total_applications || 0;
+        const approvedApps = data.approved_applications || 0;
+        const rejectedApps = data.rejected_applications || 0;
+        const signedContracts = data.signed_contracts || 0;
+        const followupsCount = data.total_followups || 0;
+
+        const rate = totalDogs > 0 ? Math.round((adoptedDogs / totalDogs) * 100) : 0;
+
+        document.getElementById('kpi-dogs-total').textContent = totalDogs;
+        document.getElementById('kpi-dogs-adopted').textContent = adoptedDogs;
+        document.getElementById('kpi-apps-total').textContent = totalApps;
+        document.getElementById('kpi-success-rate').textContent = `${rate}%`;
+
+        document.getElementById('bar-avail-val').textContent = `${availableDogs} ตัว`;
+        document.getElementById('bar-adopt-val').textContent = `${adoptedDogs} ตัว`;
+        document.getElementById('bar-res-val').textContent = `${reservedDogs} ตัว`;
+
+        if (totalDogs > 0) {
+          document.getElementById('bar-avail-fill').style.width = `${(availableDogs / totalDogs) * 100}%`;
+          document.getElementById('bar-adopt-fill').style.width = `${(adoptedDogs / totalDogs) * 100}%`;
+          document.getElementById('bar-res-fill').style.width = `${(reservedDogs / totalDogs) * 100}%`;
+        }
+
+        document.getElementById('stat-apps-approved').textContent = `${approvedApps} คำขอ`;
+        document.getElementById('stat-apps-rejected').textContent = `${rejectedApps} คำขอ`;
+        document.getElementById('stat-contracts-signed').textContent = `${signedContracts} ฉบับ`;
+        document.getElementById('stat-followups-count').textContent = `${followupsCount} รายงาน`;
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>
