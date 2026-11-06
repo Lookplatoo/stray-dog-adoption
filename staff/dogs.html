@@ -198,8 +198,8 @@
 
         tbody.innerHTML = list.map(d => {
           let badge = '';
-          if (d.status === 'พร้อมหาบ้าน') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">พร้อมหาบ้าน</span>';
-          else if (d.status === 'รับเลี้ยงแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">รับเลี้ยงแล้ว</span>';
+          if (d.status === 'พร้อมหาบ้าน' || d.status === 'พร้อมรับเลี้ยง') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">พร้อมรับเลี้ยง</span>';
+          else if (d.status === 'รับเลี้ยงแล้ว' || d.status === 'ได้บ้านแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">ได้บ้านแล้ว</span>';
           else badge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-700">${d.status}</span>`;
 
           return `

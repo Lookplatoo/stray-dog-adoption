@@ -165,8 +165,8 @@
     async function loadAdoptedDogsAndHistory() {
       try {
         const res = await API.getMyFollowups();
-        const dogs = res.data?.adopted_dogs || [];
-        const reports = res.data?.reports || [];
+        const dogs = res.data?.adopted_dogs || res.adoptedDogs || [];
+        const reports = res.data?.reports || res.followups || [];
 
         // 1. Render Adopted Dogs Cards
         const dogsListEl = document.getElementById('adopted-dogs-list');

@@ -103,7 +103,7 @@
     }
 
     function renderContractDocument(c) {
-      const isSigned = c.status === 'ลงนามแล้ว';
+      const isSigned = c.status === 'ลงนามแล้ว' || c.signed === 1 || c.signed === true || c.raw_status === 'active';
       const stipulations = c.terms ? c.terms.split('\n').filter(t => t.trim()) : [
         'ผู้รับเลี้ยงยินยอมดูแลเอาใจใส่สุนัขด้วยความเมตตา ไม่ทอดทิ้ง กักขัง หรือทรมาน',
         'ผู้รับเลี้ยงยินยอมพาเข้ารับการฉีดวัคซีนป้องกันโรคพิษสุนัขบ้า และวัคซีนรวมตามกำหนดทุกปี',

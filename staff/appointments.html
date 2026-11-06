@@ -111,7 +111,7 @@
         let list = res.data || [];
 
         if (filter !== 'ทั้งหมด') {
-          list = list.filter(a => a.status === filter);
+          list = list.filter(a => a.status === filter || a.raw_status === filter);
         }
 
         if (list.length === 0) {
@@ -121,12 +121,12 @@
 
         tbody.innerHTML = list.map(a => {
           let badge = '';
-          if (a.status === 'ยืนยันนัดหมายแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">ยืนยันแล้ว</span>';
-          else if (a.status === 'ดำเนินการแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">เสร็จสิ้น</span>';
-          else if (a.status === 'ยกเลิกแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-600">ยกเลิก</span>';
+          if (a.status === 'ยืนยันนัดหมายแล้ว' || a.status === 'ยืนยันแล้ว' || a.raw_status === 'confirmed') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">ยืนยันแล้ว</span>';
+          else if (a.status === 'ดำเนินการแล้ว' || a.status === 'เสร็จสิ้น' || a.raw_status === 'completed') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">เสร็จสิ้น</span>';
+          else if (a.status === 'ยกเลิกแล้ว' || a.raw_status === 'cancelled') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-zinc-100 text-zinc-600">ยกเลิก</span>';
           else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">รอตรวจสอบ</span>';
 
-          const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว';
+          const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว' || a.status === 'ยืนยันแล้ว' || a.raw_status === 'confirmed';
 
           return `
             <tr class="hover:bg-zinc-50/60 transition-colors">

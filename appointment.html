@@ -161,7 +161,7 @@
         const select = document.getElementById('app-select');
         select.innerHTML = '<option value="">-- กรุณาเลือกคำขอรับเลี้ยง --</option>';
         
-        const approved = (res.data || []).filter(a => a.status === 'อนุมัติแล้ว');
+        const approved = (res.data || res.applications || []).filter(a => a.status === 'อนุมัติแล้ว' || a.status === 'approved' || a.raw_status === 'approved');
         if (approved.length === 0) {
           select.innerHTML += '<option disabled value="">(ยังไม่มีคำขอที่ได้รับการอนุมัติ - กรุณายื่นคำขอก่อน)</option>';
           return;
@@ -170,7 +170,7 @@
         approved.forEach(app => {
           const opt = document.createElement('option');
           opt.value = app.id;
-          opt.textContent = `รหัส ${app.id} - ${app.dog_name} (${app.dog_code} - ${app.dog_breed})`;
+          opt.textContent = `รหัส ${app.id} - ${app.dog_name} (${app.dog_code || app.dog_id || ''} - ${app.dog_breed || ''})`;
           opt.dataset.dogId = app.dog_id;
           select.appendChild(opt);
         });
@@ -203,10 +203,10 @@
     }
 
     function renderAppointmentCard(a) {
-      const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว';
-      const isPending = a.status === 'รอดำเนินการ' || a.status === 'รออนุมัติ';
-      const isCompleted = a.status === 'เสร็จสิ้น' || a.status === 'ดำเนินการแล้ว';
-      const isCancelled = a.status === 'ยกเลิกแล้ว';
+      const isConfirmed = a.status === 'ยืนยันนัดหมายแล้ว' || a.status === 'ยืนยันแล้ว' || a.raw_status === 'confirmed';
+      const isPending = a.status === 'รอดำเนินการ' || a.status === 'รออนุมัติ' || a.status === 'รอยืนยัน' || a.raw_status === 'pending';
+      const isCompleted = a.status === 'เสร็จสิ้น' || a.status === 'ดำเนินการแล้ว' || a.raw_status === 'completed';
+      const isCancelled = a.status === 'ยกเลิกแล้ว' || a.raw_status === 'cancelled';
 
       let statusBadge = '';
       if (isConfirmed) statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ ยืนยันนัดหมายแล้ว</span>';

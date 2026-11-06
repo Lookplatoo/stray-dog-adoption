@@ -185,7 +185,7 @@
 
       try {
         const res = await API.getAllApplications();
-        const approved = (res.data || []).filter(a => a.status === 'อนุมัติแล้ว');
+        const approved = (res.data || res.applications || []).filter(a => a.status === 'อนุมัติแล้ว' || a.status === 'approved' || a.raw_status === 'approved');
         
         if (approved.length === 0) {
           select.innerHTML += '<option disabled>ไม่มีคำขอที่ผ่านการอนุมัติที่ยังไม่ได้ทำสัญญา</option>';

@@ -179,8 +179,8 @@
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-zinc-900">${a.dog_name}</span>
                   <span class="text-[10px] font-mono text-zinc-500 bg-white px-1.5 py-0.5 rounded border border-zinc-200">${a.id}</span>
-                  <span class="badge-subtle ${a.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : (a.status === 'rejected' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700')}">
-                    ${a.status === 'approved' ? 'ผ่านการคัดกรองแล้ว' : (a.status === 'rejected' ? 'ไม่ผ่านเกณฑ์' : 'รอเจ้าหน้าที่ตรวจสอบ')}
+                  <span class="badge-subtle ${(a.status === 'approved' || a.status === 'อนุมัติแล้ว') ? 'bg-emerald-50 text-emerald-700' : ((a.status === 'rejected' || a.status === 'ปฏิเสธแล้ว') ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700')}">
+                    ${(a.status === 'approved' || a.status === 'อนุมัติแล้ว') ? 'ผ่านการคัดกรองแล้ว' : ((a.status === 'rejected' || a.status === 'ปฏิเสธแล้ว') ? 'ไม่ผ่านเกณฑ์' : 'รอเจ้าหน้าที่ตรวจสอบ')}
                   </span>
                 </div>
                 <p class="text-zinc-500 mt-0.5">คะแนนประเมิน: <strong>${a.score}/100</strong> | ยื่นเมื่อ: ${a.created_at.substring(0, 10)}</p>
@@ -188,9 +188,9 @@
             </div>
 
             <div>
-              ${a.status === 'approved' 
+              ${(a.status === 'approved' || a.status === 'อนุมัติแล้ว') 
                 ? `<a href="./appointment.html?app_id=${a.id}" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-white font-semibold text-xs hover:bg-zinc-800 transition-colors shadow-xs">ไปจองวันนัดหมายดูตัว →</a>`
-                : `<span class="text-zinc-400 italic">${a.status === 'pending' ? 'อยู่ระหว่างรอการตรวจประวัติ' : 'สามารถเลือกสุนัขตัวอื่นได้'}</span>`
+                : `<span class="text-zinc-400 italic">${(a.status === 'pending' || a.status === 'รอดำเนินการ' || a.status === 'รอการตรวจสอบ') ? 'อยู่ระหว่างรอการตรวจประวัติ' : 'สามารถเลือกสุนัขตัวอื่นได้'}</span>`
               }
             </div>
           </div>
