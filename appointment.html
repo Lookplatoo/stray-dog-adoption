@@ -130,9 +130,14 @@
 
   <!-- ================= FOOTER ================= -->
   <footer class="no-print bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-500">
-    <div class="max-w-7xl mx-auto px-4">
-      <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
-      <p class="text-[11px] text-zinc-400 mt-1">Stray Dog Adoption and Screening System</p>
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>
+        <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
+        <p class="text-[11px] text-zinc-400 mt-0.5">Stray Dog Adoption and Screening System</p>
+      </div>
+      <button type="button" onclick="resetAllData()" class="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 font-medium transition-colors">
+        <span>🔄</span> <span>รีเซ็ตค่าเริ่มต้น</span>
+      </button>
     </div>
   </footer>
 
@@ -167,13 +172,26 @@
           return;
         }
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedAppId = urlParams.get('app_id');
+
         approved.forEach(app => {
           const opt = document.createElement('option');
           opt.value = app.id;
           opt.textContent = `รหัส ${app.id} - ${app.dog_name} (${app.dog_code || app.dog_id || ''} - ${app.dog_breed || ''})`;
           opt.dataset.dogId = app.dog_id;
+          if (preselectedAppId && app.id === preselectedAppId) {
+            opt.selected = true;
+          }
           select.appendChild(opt);
         });
+
+        if (preselectedAppId && approved.some(a => a.id === preselectedAppId)) {
+          select.value = preselectedAppId;
+          setTimeout(() => {
+            document.getElementById('booking-card')?.scrollIntoView({ behavior: 'smooth' });
+          }, 300);
+        }
       } catch (err) {
         console.error(err);
       }

@@ -61,9 +61,14 @@
 
   <!-- ================= FOOTER ================= -->
   <footer class="no-print bg-white border-t border-zinc-200 py-6 text-center text-xs text-zinc-500">
-    <div class="max-w-7xl mx-auto px-4">
-      <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
-      <p class="text-[11px] text-zinc-400 mt-1">Stray Dog Adoption and Screening System</p>
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>
+        <p class="font-medium text-zinc-700">ระบบหาบ้านและคัดกรองเจ้าของให้สุนัขจรจัด (Stray Dog Adoption Portal)</p>
+        <p class="text-[11px] text-zinc-400 mt-0.5">Stray Dog Adoption and Screening System</p>
+      </div>
+      <button type="button" onclick="resetAllData()" class="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 font-medium transition-colors">
+        <span>🔄</span> <span>รีเซ็ตค่าเริ่มต้น</span>
+      </button>
     </div>
   </footer>
 
@@ -235,7 +240,23 @@
                   </button>
                 </div>
               </div>
-            ` : ''}
+            ` : `
+              <div class="no-print mt-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">
+                    🎉
+                  </div>
+                  <div>
+                    <h5 class="text-sm font-bold text-emerald-900">สัญญาการรับเลี้ยงมีผลสมบูรณ์ตามกฎหมายแล้ว!</h5>
+                    <p class="text-xs text-emerald-700 mt-0.5">ยินดีด้วยครับ น้องสุนัขอยู่ในความดูแลของคุณอย่างเป็นทางการ ท่านสามารถส่งรายงานติดตามผลได้ทันที</p>
+                  </div>
+                </div>
+                <a href="./followup.html" class="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs transition-colors shadow-xs shrink-0 flex items-center gap-1.5">
+                  <span>ไปหน้ารายงานติดตามผล</span>
+                  <span>→</span>
+                </a>
+              </div>
+            `}
 
           </div>
         </div>
@@ -261,7 +282,7 @@
       btn.textContent = 'กำลังลงนาม...';
 
       try {
-        const res = await API.signContract(contractId, { signer_name: signerName });
+        const res = await API.signContract(contractId, { signature_text: signerName, signer_name: signerName });
         showToast(res.message || 'ลงนามสัญญาสำเร็จเรียบร้อยแล้ว!');
         await loadContracts();
       } catch (err) {

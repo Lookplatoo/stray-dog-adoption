@@ -125,6 +125,18 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer class="bg-white border-t border-zinc-200 py-6 mt-12 text-center text-xs text-zinc-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 Stray Dog Adoption System | วิชา ITDS262 Software Engineering Lab</p>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="resetAllData()" class="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 font-medium transition-colors">
+          <span>🔄</span> <span>รีเซ็ตค่าเริ่มต้น</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
   <!-- Scripts -->
   <script src="../assets/js/toast.js"></script>
   <script src="../assets/js/api.js"></script>
@@ -133,11 +145,16 @@
   <script>
     let currentAppList = [];
     let activeAppId = null;
+    let minCriteriaScore = 70;
 
     async function initPage() {
       // Require Staff role
       const isAuthed = await requireRole(['staff']);
       if (!isAuthed) return;
+      try {
+        const critRes = await API.getCriteria();
+        minCriteriaScore = critRes.data?.min_score || 70;
+      } catch(e) {}
       await loadApplications();
     }
 
@@ -165,7 +182,11 @@
           else if (a.status === 'ปฏิเสธแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">ปฏิเสธ</span>';
           else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">รอดำเนินการ</span>';
 
-          const scoreColor = a.score >= 80 ? 'text-emerald-600 font-bold' : (a.score >= 60 ? 'text-amber-600 font-semibold' : 'text-rose-600');
+          const meetsMin = (a.score ?? 0) >= minCriteriaScore;
+          const scoreColor = meetsMin ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
+          const criteriaTag = meetsMin 
+            ? `<div class="text-[10px] text-emerald-700 font-medium">✓ ผ่านเกณฑ์ (≥${minCriteriaScore})</div>` 
+            : `<div class="text-[10px] text-rose-600 font-medium">⚠️ ต่ำกว่าเกณฑ์ (&lt;${minCriteriaScore})</div>`;
 
           return `
             <tr class="hover:bg-zinc-50/60 transition-colors">
@@ -185,6 +206,7 @@
               </td>
               <td class="px-4 py-3.5 text-center">
                 <span class="${scoreColor}">${a.score ?? 0}</span> <span class="text-zinc-400 text-[10px]">/ 100</span>
+                ${criteriaTag}
               </td>
               <td class="px-4 py-3.5 text-zinc-500">${a.created_at ? a.created_at.split('T')[0] : '-'}</td>
               <td class="px-4 py-3.5 text-center">${badge}</td>
@@ -209,8 +231,15 @@
       document.getElementById('modal-title').textContent = `พิจารณาคำขอรหัส: ${app.id.slice(0, 8)}`;
       document.getElementById('review-reason').value = app.rejection_reason || (app.status === 'อนุมัติแล้ว' ? 'ผ่านเกณฑ์การประเมินสถานที่และความพร้อม' : '');
 
-      const container = document.getElementById('modal-details');
-      container.innerHTML = `
+        const meetsMin = (app.score ?? 0) >= minCriteriaScore;
+        const boxBg = meetsMin ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200';
+        const textTitleColor = meetsMin ? 'text-emerald-900' : 'text-rose-900';
+        const textSubColor = meetsMin ? 'text-emerald-700' : 'text-rose-700';
+        const statusMsg = meetsMin 
+          ? `✓ ผ่านเกณฑ์ขั้นต่ำที่ผู้ดูแลระบบกำหนด (${minCriteriaScore} คะแนน)`
+          : `⚠️ ต่ำกว่าเกณฑ์ขั้นต่ำที่ผู้ดูแลระบบกำหนด (${minCriteriaScore} คะแนน)`;
+
+        container.innerHTML = `
         <div class="grid grid-cols-2 gap-4 bg-zinc-50 p-4 rounded-xl border border-zinc-200">
           <div>
             <p class="text-[11px] text-zinc-400 font-semibold uppercase">ผู้ขอรับเลี้ยง</p>
@@ -248,12 +277,15 @@
           </div>
         </div>
 
-        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between">
+        <div class="p-3 rounded-xl ${boxBg} border flex items-center justify-between">
           <div>
-            <span class="text-xs font-bold text-amber-900">คะแนนประเมินความพร้อมอัตโนมัติ:</span>
-            <p class="text-[11px] text-amber-700">คำนวณจากเกณฑ์สถานที่ + ประสบการณ์ + ความยินยอม</p>
+            <span class="text-xs font-bold ${textTitleColor}">คะแนนประเมินความพร้อมอัตโนมัติ:</span>
+            <p class="text-[11px] ${textSubColor}">${statusMsg}</p>
           </div>
-          <span class="text-lg font-black text-amber-900">${app.score ?? 0} / 100</span>
+          <div class="text-right">
+            <span class="text-lg font-black ${textTitleColor}">${app.score ?? 0}</span>
+            <span class="text-xs ${textSubColor}">/ 100</span>
+          </div>
         </div>
       `;
 

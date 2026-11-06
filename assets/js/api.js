@@ -97,6 +97,8 @@ const api = {
   resetDatabase() {
     const initial = getInitialDB();
     saveDB(initial);
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_info');
     return { success: true, message: 'รีเซ็ตฐานข้อมูลเริ่มต้นเรียบร้อยแล้ว' };
   },
 
@@ -694,9 +696,10 @@ const api = {
     const ctr = db.contracts.find(c => c.id === id);
     if (!ctr) throw new Error('ไม่พบสัญญารหัสนี้');
     
-    const sig = typeof payload === 'object' ? payload.signature_text : payload;
+    const sig = typeof payload === 'object' ? (payload.signer_name || payload.signature_text || 'ผู้รับเลี้ยง') : (payload || 'ผู้รับเลี้ยง');
     ctr.signed = 1;
     ctr.signature_text = sig;
+    ctr.signed_name = sig;
     ctr.signed_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
     ctr.status = 'active';
 

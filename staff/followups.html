@@ -84,6 +84,18 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer class="bg-white border-t border-zinc-200 py-6 mt-12 text-center text-xs text-zinc-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 Stray Dog Adoption System | วิชา ITDS262 Software Engineering Lab</p>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="resetAllData()" class="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 font-medium transition-colors">
+          <span>🔄</span> <span>รีเซ็ตค่าเริ่มต้น</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
   <!-- Scripts -->
   <script src="../assets/js/toast.js"></script>
   <script src="../assets/js/api.js"></script>
@@ -91,6 +103,7 @@
 
   <script>
     let activeFollowupId = null;
+    let cachedFollowups = [];
 
     async function initPage() {
       const isAuthed = await requireRole(['staff']);
@@ -103,6 +116,7 @@
       try {
         const res = await API.getAllFollowups();
         const list = res.data || [];
+        cachedFollowups = list;
 
         if (list.length === 0) {
           container.innerHTML = `
@@ -164,7 +178,7 @@
               ` : ''}
 
               <div class="flex justify-end pt-1">
-                <button onclick="openFeedbackModal('${f.id}', '${f.staff_feedback ? f.staff_feedback.replace(/'/g, "\\'") : ''}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-medium hover:bg-zinc-800 transition-all shadow-2xs">
+                <button onclick="openFeedbackModal('${f.id}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-medium hover:bg-zinc-800 transition-all shadow-2xs">
                   ${f.staff_feedback ? '✏️ แก้ไขข้อเสนอแนะ' : '🩺 บันทึกผลตรวจ & ให้คำแนะนำ'}
                 </button>
               </div>
@@ -176,9 +190,10 @@
       }
     }
 
-    function openFeedbackModal(id, currentFeedback) {
+    function openFeedbackModal(id) {
       activeFollowupId = id;
-      document.getElementById('feedback-text').value = currentFeedback || '';
+      const target = cachedFollowups.find(x => x.id === id);
+      document.getElementById('feedback-text').value = target?.staff_feedback || '';
       document.getElementById('feedback-modal').classList.remove('hidden');
     }
 

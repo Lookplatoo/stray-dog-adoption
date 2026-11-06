@@ -95,6 +95,27 @@ function logout() {
   }, 400);
 }
 
+// Global Reset All Data to standard seeds
+function resetAllData() {
+  if (!confirm('คุณต้องการรีเซ็ตข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้นเริ่มต้นใช่หรือไม่?\n\nข้อมูลการทดสอบทั้งหมด (สุนัข, คำขอ, นัดหมาย, สัญญา, ติดตามผล) จะถูกคืนค่ากลับเป็นชุดข้อมูลมาตรฐาน')) {
+    return;
+  }
+  if (typeof api !== 'undefined' && typeof api.resetDatabase === 'function') {
+    api.resetDatabase();
+  } else if (typeof API !== 'undefined' && typeof API.resetDatabase === 'function') {
+    API.resetDatabase();
+  }
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('user_info');
+  if (typeof showToast === 'function') {
+    showToast('รีเซ็ตข้อมูลทั้งหมดเรียบร้อยแล้ว กำลังโหลดหน้าใหม่...', 'info');
+  }
+  setTimeout(() => {
+    window.location.reload();
+  }, 400);
+}
+window.resetAllData = resetAllData;
+
 // Dynamic header for adopter/public pages
 function renderDynamicNavbar() {
   const container = document.getElementById('navbar-auth-actions');
@@ -170,6 +191,9 @@ function renderStaffHeader() {
         <a href="${getAppPath('/index.html')}" class="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
           <span>← หน้าผู้ใช้ทั่วไป</span>
         </a>
+        <button onclick="resetAllData()" title="รีเซ็ตฐานข้อมูลเป็นค่าเริ่มต้น" class="text-xs text-amber-300 hover:text-amber-200 px-2 py-1 rounded transition-colors flex items-center gap-1 border border-amber-500/30 bg-amber-500/10">
+          <span>🔄</span> <span class="hidden md:inline">รีเซ็ตข้อมูล</span>
+        </button>
         <button onclick="logout()" class="text-xs text-zinc-400 hover:text-rose-400 px-2 py-1 rounded transition-colors">
           ออกจากระบบ
         </button>

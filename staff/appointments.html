@@ -90,6 +90,18 @@
 
   </main>
 
+  <!-- Footer -->
+  <footer class="bg-white border-t border-zinc-200 py-6 mt-12 text-center text-xs text-zinc-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 Stray Dog Adoption System | วิชา ITDS262 Software Engineering Lab</p>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="resetAllData()" class="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 font-medium transition-colors">
+          <span>🔄</span> <span>รีเซ็ตค่าเริ่มต้น</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
   <!-- Scripts -->
   <script src="../assets/js/toast.js"></script>
   <script src="../assets/js/api.js"></script>
@@ -167,6 +179,12 @@
                   <button onclick="updateStatus('${a.id}', 'ดำเนินการแล้ว')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium hover:bg-zinc-800 shadow-2xs">
                     ✓ พบตัวแล้ว
                   </button>
+                ` : ''}
+
+                ${(a.status === 'ดำเนินการแล้ว' || a.status === 'เสร็จสิ้น' || a.raw_status === 'completed') ? `
+                  <a href="./contracts.html?app_id=${a.application_id}" class="px-2.5 py-1.5 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium inline-block text-[11px] shadow-2xs">
+                    📜 ไปจัดทำสัญญา →
+                  </a>
                 ` : ''}
               </td>
             </tr>
