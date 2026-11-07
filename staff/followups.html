@@ -66,13 +66,13 @@
   <div id="feedback-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="text-base font-bold text-zinc-900">บันทึกข้อเสนอแนะและผลการตรวจติดตาม</h3>
+        <h3 class="text-base font-bold text-zinc-900">บันทึกการติดตามผลและข้อเสนอแนะ</h3>
         <button onclick="closeFeedbackModal()" class="text-zinc-400 hover:text-zinc-700 text-xl font-bold">&times;</button>
       </div>
 
       <div class="space-y-3 text-xs">
-        <label class="block font-semibold text-zinc-700">คำแนะนำจากเจ้าหน้าที่ / สัตวแพทย์ประจำศูนย์:</label>
-        <textarea id="feedback-text" rows="4" placeholder="เช่น สุขภาพโดยรวมสมบูรณ์ดีมาก แนะนำให้หยอดยากันเห็บหมัดตามกำหนด หรือ สอบถามอาการเพิ่มเติม..." class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white"></textarea>
+        <label class="block font-semibold text-zinc-700">บันทึกการติดตามผล & ข้อเสนอแนะของเจ้าหน้าที่:</label>
+        <textarea id="feedback-text" rows="4" placeholder="เช่น สุขภาพโดยรวมสมบูรณ์ดีมาก แนะนำให้หยอดยากันเห็บหมัดตามกำหนด หรือ บันทึกผลการติดตาม..." class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
@@ -130,56 +130,55 @@
         container.innerHTML = list.map(f => {
           const isReviewed = f.status === 'ตรวจแล้ว' || f.staff_feedback;
 
+          const photoUrl = f.photo_url || f.media_url || '';
+          const videoUrl = f.video_url || '';
+          const careText = f.care_report || f.notes || `${f.health_status || ''} ${f.behavior_status || ''}`;
+
           return `
             <div class="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs space-y-4">
               <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-zinc-100 pb-3">
                 <div class="flex items-center gap-3">
                   <img src="${f.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-12 h-12 rounded-xl object-cover">
                   <div>
-                    <h4 class="text-sm font-bold text-zinc-900">${f.dog_name || 'สุนัข'} (${f.dog_code || ''})</h4>
-                    <p class="text-xs text-zinc-500">ผู้รับเลี้ยง: <strong class="text-zinc-800">${f.adopter_name || '-'}</strong> • รอบ: <span class="font-medium text-zinc-800">${f.report_interval || 'รายงาน'}</span></p>
+                    <h4 class="text-sm font-bold text-zinc-900">${f.dog_name || 'สุนัข'} (${f.dog_code || f.dog_id || ''})</h4>
+                    <p class="text-xs text-zinc-500">
+                      ผู้รับเลี้ยง: <strong class="text-zinc-800">${f.adopter_name || '-'}</strong> • 
+                      รหัสสัญญา: <span class="font-mono text-zinc-700">${f.contract_id || '-'}</span> • 
+                      Follow-up ID: <span class="font-mono text-zinc-700">${f.id}</span>
+                    </p>
                   </div>
                 </div>
                 <div>
                   ${isReviewed 
-                    ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ เจ้าหน้าที่ตรวจแล้ว</span>'
-                    : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">⏳ รอการตรวจสอบ</span>'
+                    ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ บันทึกผลแล้ว</span>'
+                    : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">⏳ รอดำเนินการ</span>'
                   }
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div>
-                  <span class="text-zinc-400 block text-[11px]">สถานะสุขภาพ</span>
-                  <strong class="text-zinc-800">${f.health_status || '-'}</strong>
-                </div>
-                <div>
-                  <span class="text-zinc-400 block text-[11px]">พฤติกรรมการปรับตัว</span>
-                  <strong class="text-zinc-800">${f.behavior_status || '-'}</strong>
-                </div>
-                <div>
-                  <span class="text-zinc-400 block text-[11px]">รูปถ่ายที่ส่งมา</span>
-                  ${f.media_url ? `<a href="${f.media_url}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">ดูรูปภาพขยาย ↗</a>` : '<span class="text-zinc-400">ไม่ได้แนบรูป</span>'}
+              <div class="space-y-1.5 text-xs">
+                <strong class="text-zinc-800 block text-[11px]">รายงานผลการดูแลจากผู้รับเลี้ยง:</strong>
+                <div class="p-3 bg-zinc-50 rounded-xl text-zinc-700 leading-relaxed">
+                  ${careText}
                 </div>
               </div>
 
-              ${f.notes ? `
-                <div class="p-3 bg-zinc-50 rounded-xl text-xs text-zinc-700">
-                  <strong class="text-zinc-900">บันทึกจากผู้รับเลี้ยง:</strong> ${f.notes}
-                </div>
-              ` : ''}
+              <div class="flex flex-wrap items-center gap-4 text-xs">
+                ${photoUrl ? `<a href="${photoUrl}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1 font-medium">🖼️ ภาพถ่ายแนบ ↗</a>` : '<span class="text-zinc-400">ไม่มีภาพแนบ</span>'}
+                ${videoUrl ? `<a href="${videoUrl}" target="_blank" class="text-indigo-600 hover:underline flex items-center gap-1 font-medium">🎥 วิดีโอแนบ ↗</a>` : ''}
+              </div>
 
               <!-- Staff Feedback Section -->
               ${f.staff_feedback ? `
                 <div class="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl text-xs space-y-1">
-                  <span class="font-bold text-blue-900">💬 ข้อเสนอแนะที่ส่งแล้ว:</span>
+                  <span class="font-bold text-blue-900">💬 บันทึกการติดตามผล & ข้อเสนอแนะของเจ้าหน้าที่:</span>
                   <p class="text-blue-800">${f.staff_feedback}</p>
                 </div>
               ` : ''}
 
               <div class="flex justify-end pt-1">
                 <button onclick="openFeedbackModal('${f.id}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-medium hover:bg-zinc-800 transition-all shadow-2xs">
-                  ${f.staff_feedback ? '✏️ แก้ไขข้อเสนอแนะ' : '🩺 บันทึกผลตรวจ & ให้คำแนะนำ'}
+                  ${f.staff_feedback ? '✏️ แก้ไขบันทึก/ข้อเสนอแนะ' : '🩺 บันทึกการติดตามผล & ข้อเสนอแนะ'}
                 </button>
               </div>
             </div>

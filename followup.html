@@ -47,11 +47,11 @@
     <!-- Hero Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200">
       <div>
-        <h2 class="text-xl font-bold text-zinc-900">การติดตามผลหลังการรับเลี้ยง</h2>
-        <p class="text-xs text-zinc-500 mt-1">ส่งรายงานสุขภาพ พฤติกรรม และความเป็นอยู่ของสุนัขที่ท่านรับอุปการะ เพื่อรับคำแนะนำจากเจ้าหน้าที่</p>
+        <h2 class="text-xl font-bold text-zinc-900">การส่งรายงานติดตามผลการดูแลสุนัข</h2>
+        <p class="text-xs text-zinc-500 mt-1">ส่งรายงานผลการดูแล ภาพถ่าย วิดีโอ และวันที่อัปเดต เพื่อบันทึกประวัติการดูแลสุนัขตามสัญญา</p>
       </div>
       <button onclick="document.getElementById('report-card').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
-        + ส่งรายงานผลรอบใหม่
+        + กรอกรายงานผลรอบใหม่
       </button>
     </div>
 
@@ -63,78 +63,69 @@
       </div>
     </section>
 
-    <!-- Past Follow-ups & Staff Feedback -->
+    <!-- Care Report Submission Receipts History -->
     <section class="space-y-4">
-      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">ประวัติการรายงานผล & คำแนะนำจากเจ้าหน้าที่</h3>
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">ประวัติการส่งรายงานผลการดูแล (Submission Receipts)</h3>
+        <span class="text-xs text-zinc-400" id="receipts-count">0 รายการ</span>
+      </div>
       <div id="followups-history" class="space-y-4">
         <div class="text-xs text-zinc-400 py-4">กำลังโหลดประวัติรายงานผล...</div>
       </div>
     </section>
 
-    <!-- New Follow-up Report Form -->
+    <!-- New Follow-up Report Form: Exactly matching Diagram Fields -->
     <section id="report-card" class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-xs space-y-6">
-      <div class="flex items-center justify-between border-b border-zinc-100 pb-4">
-        <div>
-          <h3 class="text-base font-bold text-zinc-900">แบบฟอร์มรายงานผลความเป็นอยู่ของสุนัข</h3>
-          <p class="text-xs text-zinc-500 mt-0.5">ระบุข้อมูลสุขภาพ การปรับตัว และแนบรูปภาพล่าสุด</p>
-        </div>
+      <div class="border-b border-zinc-100 pb-4">
+        <h3 class="text-base font-bold text-zinc-900">แบบฟอร์มส่งรายงานผลการดูแลสุนัข</h3>
+        <p class="text-xs text-zinc-500 mt-0.5">ระบุ Contract ID, Dog ID, วันที่อัปเดต, ภาพถ่าย, วิดีโอ และรายงานผลการดูแล</p>
       </div>
 
       <form id="followup-form" onsubmit="handleSubmitFollowup(event)" class="space-y-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">เลือกสุนัขในความดูแลของคุณ <span class="text-rose-500">*</span></label>
+          <select id="followup-dog-select" required onchange="onDogSelected()" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+            <option value="">-- กรุณาเลือกสุนัข --</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">เลือกสุนัขที่ต้องการรายงานผล <span class="text-rose-500">*</span></label>
-            <select id="followup-dog-select" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
-              <option value="">-- กรุณาเลือกสุนัข --</option>
-            </select>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">Contract ID (รหัสสัญญา)</label>
+            <input type="text" id="followup-contract-id" readonly placeholder="CTR-2026-..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-100 px-3.5 py-2.5 text-zinc-600 font-mono">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">รอบระยะเวลาที่รายงาน <span class="text-rose-500">*</span></label>
-            <select id="followup-round" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
-              <option value="1 สัปดาห์แรก">ช่วงปรับตัว (1 สัปดาห์แรก)</option>
-              <option value="1 เดือนแรก">รอบที่ 1 (ครบ 1 เดือนแรก)</option>
-              <option value="3 เดือน">รอบที่ 2 (ครบ 3 เดือน)</option>
-              <option value="6 เดือน">รอบที่ 3 (ครบ 6 เดือน)</option>
-              <option value="1 ปี">รอบที่ 4 (ครบ 1 ปี)</option>
-            </select>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">Dog ID (รหัสสุนัข)</label>
+            <input type="text" id="followup-dog-id" readonly placeholder="D-..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-100 px-3.5 py-2.5 text-zinc-600 font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">วันที่อัปเดต (Update Date) <span class="text-rose-500">*</span></label>
+            <input type="date" id="followup-update-date" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">สถานะสุขภาพทั่วไป <span class="text-rose-500">*</span></label>
-            <select id="followup-health" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
-              <option value="แข็งแรงสมบูรณ์ ร่าเริง">แข็งแรงสมบูรณ์ ร่าเริง กินอาหารได้ดี</option>
-              <option value="สุขภาพปกติ">สุขภาพปกติ ไม่มีอาการเจ็บป่วย</option>
-              <option value="มีอาการเจ็บป่วยเล็กน้อย">มีอาการเจ็บป่วยเล็กน้อย (เช่น คัน, เบื่ออาหาร)</option>
-              <option value="อยู่ระหว่างการรักษาของสัตวแพทย์">อยู่ระหว่างการรักษาของสัตวแพทย์</option>
-            </select>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">ภาพถ่าย (Photo URL) <span class="text-rose-500">*</span></label>
+            <input type="url" id="followup-photo" required placeholder="https://images.unsplash.com/... หรือ ลิงก์รูปถ่าย" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+            <p class="text-[11px] text-zinc-400 mt-1">แนบลิงก์รูปภาพแสดงความเป็นอยู่หรือกิจกรรมของสุนัข</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">การปรับตัวและพฤติกรรม <span class="text-rose-500">*</span></label>
-            <select id="followup-behavior" required class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
-              <option value="ปรับตัวได้ดีมาก เข้ากับคนและสัตว์อื่นได้ดี">ปรับตัวได้ดีมาก เข้ากับสมาชิกในบ้านได้ราบรื่น</option>
-              <option value="เริ่มคุ้นเคย ยังมีความขี้ระแวงเล็กน้อย">เริ่มคุ้นเคย ยังมีความขี้ระแวงเล็กน้อย</option>
-              <option value="ยังตื่นกลัว หลบซ่อนตัว">ยังตื่นกลัว หลบซ่อนตัว ต้องใช้เวลาปรับตัว</option>
-              <option value="มีพฤติกรรมเห่าหรือกัดสิ่งของ">มีพฤติกรรมเห่า ขุด หรือกัดแทะสิ่งของ</option>
-            </select>
+            <label class="block text-xs font-semibold text-zinc-700 mb-1.5">วิดีโอ (Video URL) <span class="text-rose-500">*</span></label>
+            <input type="url" id="followup-video" required placeholder="https://youtube.com/... หรือ ลิงก์คลิปวิดีโอ" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
+            <p class="text-[11px] text-zinc-400 mt-1">แนบลิงก์คลิปวิดีโอการใช้ชีวิตและพฤติกรรม</p>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">ลิงก์รูปถ่ายหรือวิดีโอล่าสุด (Image / Video URL) <span class="text-rose-500">*</span></label>
-          <input type="url" id="followup-media" required placeholder="https://images.unsplash.com/... หรือ ลิงก์รูปถ่าย" class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900">
-          <p class="text-[11px] text-zinc-400 mt-1">แนบรูปภาพเพื่อให้เจ้าหน้าที่และสัตวแพทย์ประเมินสภาพร่างกายและความเป็นอยู่</p>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">รายละเอียดเพิ่มเติมและข้อสงสัยที่ต้องการปรึกษาเจ้าหน้าที่</label>
-          <textarea id="followup-notes" rows="3" placeholder="เช่น น้องกินอาหารเม็ดยี่ห้อไหนดี, อยากขอคำแนะนำเรื่องการฝึกขับถ่ายเป็นที่..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"></textarea>
+          <label class="block text-xs font-semibold text-zinc-700 mb-1.5">รายงานผลการดูแล (Care Report) <span class="text-rose-500">*</span></label>
+          <textarea id="followup-care-report" rows="3" required placeholder="รายงานสภาพความเป็นอยู่ การกินอาหาร สุขภาพ พฤติกรรม และการดูแลประจำวัน..." class="w-full text-xs rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-zinc-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"></textarea>
         </div>
 
         <div class="pt-2">
           <button type="submit" id="btn-submit-report" class="px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
-            ส่งรายงานติดตามผล
+            ส่งรายงานผลการดูแล
           </button>
         </div>
       </form>
@@ -161,10 +152,28 @@
   <script src="./assets/js/auth.js"></script>
 
   <script>
+    let cachedAdoptedDogs = [];
+
     async function initPage() {
       const isAuthed = await checkAuth(['adopter', 'staff', 'admin']);
       if (!isAuthed) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('followup-update-date').value = today;
+
       await loadAdoptedDogsAndHistory();
+    }
+
+    function onDogSelected() {
+      const dogId = document.getElementById('followup-dog-select').value;
+      const dog = cachedAdoptedDogs.find(d => String(d.id) === String(dogId));
+      if (dog) {
+        document.getElementById('followup-contract-id').value = dog.contract_id || 'CTR-2026-001';
+        document.getElementById('followup-dog-id').value = dog.code || dog.id;
+      } else {
+        document.getElementById('followup-contract-id').value = '';
+        document.getElementById('followup-dog-id').value = '';
+      }
     }
 
     async function loadAdoptedDogsAndHistory() {
@@ -172,6 +181,7 @@
         const res = await API.getMyFollowups();
         const dogs = res.data?.adopted_dogs || res.adoptedDogs || [];
         const reports = res.data?.reports || res.followups || [];
+        cachedAdoptedDogs = dogs;
 
         // 1. Render Adopted Dogs Cards
         const dogsListEl = document.getElementById('adopted-dogs-list');
@@ -188,10 +198,11 @@
         } else {
           dogsListEl.innerHTML = dogs.map(d => `
             <div class="bg-white rounded-xl border border-zinc-200 p-3.5 flex items-center gap-3.5 shadow-xs">
-              <img src="${d.image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'}" class="w-14 h-14 rounded-lg object-cover">
+              <img src="${d.image_url || d.image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'}" class="w-14 h-14 rounded-lg object-cover">
               <div>
                 <h4 class="text-xs font-bold text-zinc-900">${d.name}</h4>
-                <p class="text-[11px] text-zinc-500">${d.code} • ${d.breed}</p>
+                <p class="text-[11px] text-zinc-500">${d.code || d.id} • ${d.breed}</p>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">สัญญา: ${d.contract_id || '-'}</div>
                 <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
                   อยู่ในความดูแลของคุณ
                 </span>
@@ -202,77 +213,69 @@
           dogs.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d.id;
-            opt.textContent = `${d.name} (${d.code} - ${d.breed})`;
+            opt.textContent = `${d.name} (${d.code || d.id} - ${d.breed}) [สัญญา: ${d.contract_id || '-'}]`;
             dogSelectEl.appendChild(opt);
           });
 
-          if (dogs.length === 1) {
+          if (dogs.length > 0) {
             dogSelectEl.value = dogs[0].id;
+            onDogSelected();
           }
         }
 
-        // 2. Render Historical Reports & Feedback
+        // 2. Render Historical Receipts (Adopter's Outbound Data Flow Receipts)
         const historyEl = document.getElementById('followups-history');
+        const countEl = document.getElementById('receipts-count');
+        countEl.textContent = `${reports.length} รายการ`;
+
         if (reports.length === 0) {
           historyEl.innerHTML = `
             <div class="bg-zinc-50 border border-zinc-200 rounded-xl p-6 text-center text-zinc-400 text-xs">
-              ยังไม่มีรายงานผลที่เคยส่งในระบบ
+              ยังไม่มีประวัติการส่งรายงานผลการดูแลในระบบ
             </div>
           `;
         } else {
           historyEl.innerHTML = reports.map(r => {
-            const isReviewed = r.status === 'ตรวจแล้ว' || r.staff_feedback;
+            const dog = cachedAdoptedDogs.find(d => String(d.id) === String(r.dog_id)) || {};
+            const photoUrl = r.photo_url || r.media_url || '';
+            const videoUrl = r.video_url || '';
+            const careText = r.care_report || r.notes || `${r.health_status || ''} ${r.behavior_status || ''}`;
+            const updateDate = r.update_date || r.created_at?.split('T')[0] || '-';
+
             return `
-              <div class="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs space-y-4">
-                
+              <div class="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs space-y-3">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
                   <div class="flex items-center gap-3">
-                    <img src="${r.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200'}" class="w-10 h-10 rounded-lg object-cover">
+                    <div class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-700 flex items-center justify-center text-sm font-bold">📄</div>
                     <div>
-                      <h4 class="text-xs font-bold text-zinc-900">${r.dog_name || 'สุนัข'} (${r.dog_code || ''}) - รอบ: ${r.report_interval || 'รายงานผล'}</h4>
-                      <p class="text-[11px] text-zinc-400">ส่งเมื่อ: ${r.created_at ? r.created_at.split('T')[0] : 'ไม่ระบุ'}</p>
+                      <h4 class="text-xs font-bold text-zinc-900">${r.dog_name || dog.name || 'สุนัข'} (${r.dog_code || dog.code || r.dog_id || ''})</h4>
+                      <p class="text-[11px] text-zinc-500 font-mono">Contract ID: ${r.contract_id || dog.contract_id || '-'}</p>
                     </div>
                   </div>
-                  <div>
-                    ${isReviewed 
-                      ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ เจ้าหน้าที่ตรวจแล้ว</span>'
-                      : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">⏳ รอเจ้าหน้าที่ตรวจ</span>'
-                    }
+                  <div class="text-[11px] text-zinc-400">
+                    วันที่อัปเดต: <span class="font-medium text-zinc-700">${updateDate}</span>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                  <div>
-                    <span class="text-zinc-400 block text-[11px]">สถานะสุขภาพ</span>
-                    <strong class="text-zinc-800">${r.health_status || '-'}</strong>
-                  </div>
-                  <div>
-                    <span class="text-zinc-400 block text-[11px]">พฤติกรรมและการปรับตัว</span>
-                    <strong class="text-zinc-800">${r.behavior_status || '-'}</strong>
-                  </div>
-                  <div>
-                    <span class="text-zinc-400 block text-[11px]">รูปถ่ายแนบ</span>
-                    ${r.media_url ? `<a href="${r.media_url}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">ดูรูปภาพถ่าย ↗</a>` : '<span class="text-zinc-400">-</span>'}
+                <div class="space-y-1.5 text-xs">
+                  <span class="text-zinc-500 font-semibold block text-[11px]">รายงานผลการดูแล:</span>
+                  <div class="p-3 bg-zinc-50 rounded-xl text-zinc-700 leading-relaxed">
+                    ${careText}
                   </div>
                 </div>
 
-                ${r.notes ? `
-                  <div class="p-3 bg-zinc-50 rounded-xl text-xs text-zinc-700">
-                    <span class="font-semibold text-zinc-900">บันทึกจากผู้รับเลี้ยง:</span> ${r.notes}
-                  </div>
-                ` : ''}
-
-                <!-- Staff Feedback Box -->
-                ${r.staff_feedback ? `
-                  <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1">
-                    <div class="flex items-center gap-2 text-xs font-bold text-blue-900">
-                      <span>🩺</span> ข้อเสนอแนะจากเจ้าหน้าที่ / สัตวแพทย์ประจำศูนย์
-                    </div>
-                    <p class="text-xs text-blue-800 leading-relaxed">${r.staff_feedback}</p>
-                    <p class="text-[10px] text-blue-500 text-right">ตรวจเมื่อ: ${r.reviewed_at ? r.reviewed_at.split('T')[0] : 'เมื่อเร็วๆ นี้'}</p>
-                  </div>
-                ` : ''}
-
+                <div class="flex flex-wrap items-center gap-4 pt-1 text-xs">
+                  ${photoUrl ? `
+                    <a href="${photoUrl}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                      🖼️ ดูภาพถ่ายแนบ ↗
+                    </a>
+                  ` : ''}
+                  ${videoUrl ? `
+                    <a href="${videoUrl}" target="_blank" class="text-indigo-600 hover:underline flex items-center gap-1 font-medium">
+                      🎥 ดูวิดีโอแนบ ↗
+                    </a>
+                  ` : ''}
+                </div>
               </div>
             `;
           }).join('');
@@ -290,24 +293,24 @@
       btn.textContent = 'กำลังส่งรายงาน...';
 
       const payload = {
+        contract_id: document.getElementById('followup-contract-id').value.trim(),
         dog_id: document.getElementById('followup-dog-select').value,
-        report_interval: document.getElementById('followup-round').value,
-        health_status: document.getElementById('followup-health').value,
-        behavior_status: document.getElementById('followup-behavior').value,
-        media_url: document.getElementById('followup-media').value,
-        notes: document.getElementById('followup-notes').value
+        update_date: document.getElementById('followup-update-date').value,
+        photo_url: document.getElementById('followup-photo').value.trim(),
+        video_url: document.getElementById('followup-video').value.trim(),
+        care_report: document.getElementById('followup-care-report').value.trim()
       };
 
       try {
         const res = await API.submitFollowup(payload);
-        showToast(res.message || 'ส่งรายงานติดตามผลสำเร็จ! เจ้าหน้าที่จะตรวจและให้คำแนะนำ');
+        showToast(res.message || 'ส่งรายงานผลการดูแลสุนัขเรียบร้อยแล้ว');
         document.getElementById('followup-form').reset();
         await loadAdoptedDogsAndHistory();
       } catch (err) {
         showToast(err.message, 'error');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'ส่งรายงานติดตามผล';
+        btn.textContent = 'ส่งรายงานผลการดูแล';
       }
     }
 

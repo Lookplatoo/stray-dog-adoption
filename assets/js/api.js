@@ -590,7 +590,10 @@ const api = {
         dog_image_url: dog.image || '',
         terms: c.stipulations,
         signed_name: c.signature_text || (isSigned ? user.name : ''),
-        status: isSigned ? 'ลงนามแล้ว' : 'รอลงนาม',
+        review_requested: c.review_requested === 1 || c.review_requested === true,
+        review_request_notes: c.review_request_notes || '',
+        review_requested_at: c.review_requested_at || '',
+        status: isSigned ? 'ลงนามแล้ว' : (c.review_requested ? 'ขอตรวจสอบสัญญา' : 'รอลงนาม'),
         raw_status: c.status
       };
     });
@@ -626,7 +629,10 @@ const api = {
         dog_image_url: dog.image || '',
         terms: c.stipulations,
         signed_name: c.signature_text || (isSigned ? info.name : ''),
-        status: isSigned ? 'ลงนามแล้ว' : 'รอลงนาม',
+        review_requested: c.review_requested === 1 || c.review_requested === true,
+        review_request_notes: c.review_request_notes || '',
+        review_requested_at: c.review_requested_at || '',
+        status: isSigned ? 'ลงนามแล้ว' : (c.review_requested ? 'ขอตรวจสอบสัญญา' : 'รอลงนาม'),
         raw_status: c.status
       };
     });
@@ -669,15 +675,34 @@ const api = {
     };
   },
 
+  async requestContractReview(id, notes) {
+    await sleep(120);
+    const db = loadDB();
+    const ctr = db.contracts.find(c => c.id === id);
+    if (!ctr) throw new Error('ไม่พบสัญญารหัสนี้');
+    ctr.review_requested = 1;
+    ctr.review_request_notes = notes;
+    ctr.review_requested_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    saveDB(db);
+    this.logAction(`ผู้รับเลี้ยงส่งคำร้องขอตรวจสอบสัญญา ${id}: ${notes}`);
+    return { success: true, message: 'ส่งคำร้องขอตรวจสอบสัญญาไปยังเจ้าหน้าที่เรียบร้อยแล้ว' };
+  },
+
   async editContractTerms(id, stipulations) {
     await sleep(100);
     const db = loadDB();
     const ctr = db.contracts.find(c => c.id === id);
     if (!ctr) throw new Error('ไม่พบสัญญารหัสนี้');
     ctr.stipulations = stipulations;
+    ctr.review_requested = 0;
+    ctr.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
     saveDB(db);
-    this.logAction(`ปรับปรุงเงื่อนไขสัญญา ${id}`);
-    return { success: true, message: 'บันทึกแก้ไขข้อกำหนดสัญญาเรียบร้อยแล้ว' };
+    this.logAction(`เจ้าหน้าที่ปรับปรุงรายละเอียดสัญญา ${id}`);
+    return { success: true, message: 'บันทึกแก้ไขรายละเอียดสัญญาเรียบร้อยแล้ว' };
+  },
+
+  async updateContractDetails(id, stipulations) {
+    return this.editContractTerms(id, stipulations);
   },
 
   async signContract(id, payload) {
@@ -799,14 +824,17 @@ const api = {
 
     const flw = {
       id: newId,
-      contract_id: ctr.id || 'CTR-2026-001',
+      contract_id: data.contract_id || ctr.id || 'CTR-2026-001',
       dog_id: data.dog_id,
       user_id: info.id || 1,
-      report_interval: data.report_interval || 'รายงานผลหลังรับเลี้ยง',
+      report_interval: data.report_interval || 'รายงานผลการดูแล',
       health_status: data.health_status || 'สุขภาพสมบูรณ์ดี',
       behavior_status: data.behavior_status || 'ปรับตัวเข้ากับบ้านได้ดี',
-      media_url: data.media_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600',
-      notes: data.notes || '',
+      photo_url: data.photo_url || data.media_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600',
+      video_url: data.video_url || '',
+      media_url: data.photo_url || data.media_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600',
+      care_report: data.care_report || data.notes || '',
+      notes: data.care_report || data.notes || '',
       staff_feedback: '',
       update_date: new Date().toISOString().substring(0, 10),
       created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
@@ -879,6 +907,9 @@ const api = {
 
     const totalFollowups = db.followups.length;
 
+    const adoptedDogsList = db.dogs.filter(d => d.status === 'ได้บ้านแล้ว' || d.status === 'รับเลี้ยงแล้ว');
+    const unadoptedDogsList = db.dogs.filter(d => d.status !== 'ได้บ้านแล้ว' && d.status !== 'รับเลี้ยงแล้ว');
+
     const stats = {
       total_dogs: totalDogs,
       totalDogs,
@@ -888,6 +919,9 @@ const api = {
       availableDogs,
       reserved_dogs: reservedDogs,
       reservedDogs,
+      unadopted_dogs: unadoptedDogsList.length,
+      adopted_dogs_list: adoptedDogsList,
+      unadopted_dogs_list: unadoptedDogsList,
       medical_dogs: 0,
       medicalDogs: 0,
       adoptionRate,

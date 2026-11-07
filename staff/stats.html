@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบเจ้าหน้าที่ | รายงานสถิติและผลการดำเนินงาน</title>
+  <title>ระบบเจ้าหน้าที่ | รายงานสถิติสุนัข</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -47,103 +47,107 @@
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold text-zinc-900">รายงานสถิติและผลการดำเนินงานของศูนย์พักพิง</h2>
-        <p class="text-xs text-zinc-500 mt-1">ตัวชี้วัดประสิทธิภาพการจัดหาบ้าน อัตราการอนุมัติคำขอ และสถานะการติดตามผล</p>
+        <h2 class="text-xl font-bold text-zinc-900 tracking-tight">รายงานสถิติสถานะสุนัขในศูนย์พักพิง</h2>
+        <p class="text-xs text-zinc-500 mt-1">สรุปข้อมูลสถิติสุนัขที่ถูกรับเลี้ยงแล้ว และสถิติสุนัขที่ยังไม่ถูกรับเลี้ยง</p>
       </div>
       <button onclick="window.print()" class="px-4 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-semibold shadow-2xs flex items-center gap-1.5">
         <span>🖨️</span> พิมพ์รายงานสรุป
       </button>
     </div>
 
-    <!-- KPI Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
-        <span class="text-xs text-zinc-400 font-medium">สุนัขทั้งหมดในความดูแล</span>
-        <div class="text-2xl font-black text-zinc-900" id="kpi-dogs-total">0</div>
-        <p class="text-[11px] text-zinc-500">รวมทุกสายพันธุ์ในศูนย์</p>
+    <!-- Summary KPI Cards: Exactly 2 Reports from Context Diagram -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      
+      <!-- Report 1: สุนัขที่ถูกรับเลี้ยงแล้ว -->
+      <div class="bg-white p-6 rounded-2xl border border-emerald-200 bg-linear-to-br from-emerald-50/40 to-white shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🏡</span>
+            <h3 class="text-sm font-bold text-emerald-950">รายงานสถิติสุนัขที่ถูกรับเลี้ยงแล้ว</h3>
+          </div>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Adopted</span>
+        </div>
+        <div class="flex items-baseline gap-3">
+          <div class="text-3xl font-black text-emerald-700" id="stat-adopted-count">0</div>
+          <span class="text-xs text-zinc-500">ตัว (<span id="stat-adopted-percent">0%</span> ของสุนัขทั้งหมด)</span>
+        </div>
+        <p class="text-xs text-zinc-600">
+          สุนัขที่ผ่านกระบวนการคัดกรอง จับคู่ ทำสัญญา และส่งมอบให้ผู้รับเลี้ยงเรียบร้อยแล้ว
+        </p>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
-        <span class="text-xs text-emerald-600 font-medium">ได้บ้านใหม่แล้ว (Adopted)</span>
-        <div class="text-2xl font-black text-emerald-600" id="kpi-dogs-adopted">0</div>
-        <p class="text-[11px] text-zinc-500">ทำสัญญาและส่งมอบสมบูรณ์</p>
+      <!-- Report 2: สุนัขที่ยังไม่ถูกรับเลี้ยง -->
+      <div class="bg-white p-6 rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50/40 to-white shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🐕</span>
+            <h3 class="text-sm font-bold text-amber-950">รายงานสถิติสุนัขที่ยังไม่ถูกรับเลี้ยง</h3>
+          </div>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Unadopted / Sheltered</span>
+        </div>
+        <div class="flex items-baseline gap-3">
+          <div class="text-3xl font-black text-amber-700" id="stat-unadopted-count">0</div>
+          <span class="text-xs text-zinc-500">ตัว (<span id="stat-unadopted-percent">0%</span> ของสุนัขทั้งหมด)</span>
+        </div>
+        <p class="text-xs text-zinc-600">
+          สุนัขที่ยังคงพักพิงอยู่ภายในศูนย์ มีสถานะพร้อมเปิดหาบ้าน หรืออยู่ระหว่างการนัดหมาย
+        </p>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
-        <span class="text-xs text-blue-600 font-medium">คำขอรับเลี้ยงทั้งหมด</span>
-        <div class="text-2xl font-black text-blue-600" id="kpi-apps-total">0</div>
-        <p class="text-[11px] text-zinc-500">สะสมในระบบทั้งหมด</p>
-      </div>
+    </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs space-y-1">
-        <span class="text-xs text-purple-600 font-medium">อัตราความสำเร็จหาบ้าน</span>
-        <div class="text-2xl font-black text-purple-600" id="kpi-success-rate">0%</div>
-        <p class="text-[11px] text-zinc-500">Adopted / Total Dogs</p>
+    <!-- Section 1: ตารางสุนัขที่ถูกรับเลี้ยงแล้ว -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/60">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-600 font-bold">●</span>
+          <h3 class="text-xs font-bold text-zinc-900 uppercase tracking-wider">บัญชีรายชื่อสุนัขที่ถูกรับเลี้ยงแล้ว</h3>
+        </div>
+        <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full" id="table-adopted-badge">0 รายการ</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3">รหัส & ชื่อสุนัข</th>
+              <th class="px-4 py-3">สายพันธุ์</th>
+              <th class="px-4 py-3">เพศ / ช่วงอายุ</th>
+              <th class="px-4 py-3">ประวัติสุขภาพ</th>
+              <th class="px-4 py-3 text-center">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-adopted-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr><td colspan="5" class="px-4 py-6 text-center text-zinc-400">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Detailed Charts & Breakdowns -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <!-- Dog Status Breakdown Card -->
-      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
-        <h3 class="text-sm font-bold text-zinc-900">การกระจายสถานะของสุนัข (Dog Inventory)</h3>
-        <div class="space-y-3 text-xs">
-          <div>
-            <div class="flex justify-between text-zinc-700 mb-1">
-              <span>พร้อมหาบ้าน (Available)</span>
-              <strong id="bar-avail-val">0</strong>
-            </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
-              <div id="bar-avail-fill" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-zinc-700 mb-1">
-              <span>รับเลี้ยงแล้ว (Adopted)</span>
-              <strong id="bar-adopt-val">0</strong>
-            </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
-              <div id="bar-adopt-fill" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-zinc-700 mb-1">
-              <span>มีผู้จองแล้ว (Reserved)</span>
-              <strong id="bar-res-val">0</strong>
-            </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden">
-              <div id="bar-res-fill" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div>
-            </div>
-          </div>
+    <!-- Section 2: ตารางสุนัขที่ยังไม่ถูกรับเลี้ยง -->
+    <div class="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+      <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/60">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-500 font-bold">●</span>
+          <h3 class="text-xs font-bold text-zinc-900 uppercase tracking-wider">บัญชีรายชื่อสุนัขที่ยังไม่ถูกรับเลี้ยง (ในศูนย์พักพิง)</h3>
         </div>
+        <span class="text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full" id="table-unadopted-badge">0 รายการ</span>
       </div>
-
-      <!-- Application Screening Metrics -->
-      <div class="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
-        <h3 class="text-sm font-bold text-zinc-900">ประสิทธิภาพการคัดกรองคำขอ (Screening Efficiency)</h3>
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-            <span class="text-zinc-400 block text-[11px]">อนุมัติคำขอแล้ว</span>
-            <strong class="text-base text-emerald-600" id="stat-apps-approved">0</strong>
-          </div>
-          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-            <span class="text-zinc-400 block text-[11px]">ปฏิเสธคำขอ</span>
-            <strong class="text-base text-rose-600" id="stat-apps-rejected">0</strong>
-          </div>
-          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-            <span class="text-zinc-400 block text-[11px]">สัญญาที่ลงนามแล้ว</span>
-            <strong class="text-base text-purple-600" id="stat-contracts-signed">0</strong>
-          </div>
-          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-            <span class="text-zinc-400 block text-[11px]">รายงานติดตามผลที่ส่งแล้ว</span>
-            <strong class="text-base text-blue-600" id="stat-followups-count">0</strong>
-          </div>
-        </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-zinc-50 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
+            <tr>
+              <th class="px-4 py-3">รหัส & ชื่อสุนัข</th>
+              <th class="px-4 py-3">สายพันธุ์</th>
+              <th class="px-4 py-3">เพศ / ช่วงอายุ</th>
+              <th class="px-4 py-3">ประวัติสุขภาพ</th>
+              <th class="px-4 py-3 text-center">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-unadopted-body" class="divide-y divide-zinc-100 text-zinc-700">
+            <tr><td colspan="5" class="px-4 py-6 text-center text-zinc-400">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
       </div>
-
     </div>
 
   </main>
@@ -169,45 +173,72 @@
     async function initPage() {
       const isAuthed = await requireRole(['staff']);
       if (!isAuthed) return;
-      await loadStats();
+      await loadDogStats();
     }
 
-    async function loadStats() {
+    function renderDogRow(d, statusClass, statusLabel) {
+      return `
+        <tr class="hover:bg-zinc-50/60 transition-colors">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2.5">
+              <img src="${d.image_url || d.image || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-8 h-8 rounded-lg object-cover">
+              <div>
+                <span class="font-bold text-zinc-900">${d.name}</span>
+                <span class="font-mono text-[10px] text-zinc-400 block">${d.code || d.id}</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 font-medium text-zinc-800">${d.breed}</td>
+          <td class="px-4 py-3 text-zinc-600">เพศ ${d.gender} • วัย ${d.age}</td>
+          <td class="px-4 py-3 text-zinc-600 max-w-xs truncate">${d.health_record || 'สุขภาพสมบูรณ์'}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${statusClass}">${statusLabel}</span>
+          </td>
+        </tr>
+      `;
+    }
+
+    async function loadDogStats() {
       try {
         const res = await API.getStats();
         const data = res.data || {};
 
         const totalDogs = data.total_dogs || 0;
         const adoptedDogs = data.adopted_dogs || 0;
-        const availableDogs = data.available_dogs || 0;
-        const reservedDogs = data.reserved_dogs || 0;
-        const totalApps = data.total_applications || 0;
-        const approvedApps = data.approved_applications || 0;
-        const rejectedApps = data.rejected_applications || 0;
-        const signedContracts = data.signed_contracts || 0;
-        const followupsCount = data.total_followups || 0;
+        const unadoptedDogs = totalDogs - adoptedDogs;
 
-        const rate = totalDogs > 0 ? Math.round((adoptedDogs / totalDogs) * 100) : 0;
+        const adoptedPct = totalDogs > 0 ? Math.round((adoptedDogs / totalDogs) * 100) : 0;
+        const unadoptedPct = totalDogs > 0 ? (100 - adoptedPct) : 0;
 
-        document.getElementById('kpi-dogs-total').textContent = totalDogs;
-        document.getElementById('kpi-dogs-adopted').textContent = adoptedDogs;
-        document.getElementById('kpi-apps-total').textContent = totalApps;
-        document.getElementById('kpi-success-rate').textContent = `${rate}%`;
+        document.getElementById('stat-adopted-count').textContent = adoptedDogs;
+        document.getElementById('stat-adopted-percent').textContent = `${adoptedPct}%`;
+        document.getElementById('table-adopted-badge').textContent = `${adoptedDogs} ตัว`;
 
-        document.getElementById('bar-avail-val').textContent = `${availableDogs} ตัว`;
-        document.getElementById('bar-adopt-val').textContent = `${adoptedDogs} ตัว`;
-        document.getElementById('bar-res-val').textContent = `${reservedDogs} ตัว`;
+        document.getElementById('stat-unadopted-count').textContent = unadoptedDogs;
+        document.getElementById('stat-unadopted-percent').textContent = `${unadoptedPct}%`;
+        document.getElementById('table-unadopted-badge').textContent = `${unadoptedDogs} ตัว`;
 
-        if (totalDogs > 0) {
-          document.getElementById('bar-avail-fill').style.width = `${(availableDogs / totalDogs) * 100}%`;
-          document.getElementById('bar-adopt-fill').style.width = `${(adoptedDogs / totalDogs) * 100}%`;
-          document.getElementById('bar-res-fill').style.width = `${(reservedDogs / totalDogs) * 100}%`;
+        const adoptedList = data.adopted_dogs_list || [];
+        const unadoptedList = data.unadopted_dogs_list || [];
+
+        const adoptedBody = document.getElementById('table-adopted-body');
+        if (adoptedList.length === 0) {
+          adoptedBody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-zinc-400">ยังไม่มีสุนัขที่ถูกรับเลี้ยง</td></tr>`;
+        } else {
+          adoptedBody.innerHTML = adoptedList.map(d => renderDogRow(d, 'bg-emerald-100 text-emerald-800', 'รับเลี้ยงแล้ว')).join('');
         }
 
-        document.getElementById('stat-apps-approved').textContent = `${approvedApps} คำขอ`;
-        document.getElementById('stat-apps-rejected').textContent = `${rejectedApps} คำขอ`;
-        document.getElementById('stat-contracts-signed').textContent = `${signedContracts} ฉบับ`;
-        document.getElementById('stat-followups-count').textContent = `${followupsCount} รายงาน`;
+        const unadoptedBody = document.getElementById('table-unadopted-body');
+        if (unadoptedList.length === 0) {
+          unadoptedBody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-zinc-400">ไม่พบสุนัขที่ยังไม่ถูกรับเลี้ยง</td></tr>`;
+        } else {
+          unadoptedBody.innerHTML = unadoptedList.map(d => {
+            const isReserved = d.status === 'มีผู้จองแล้ว';
+            const badgeClass = isReserved ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800';
+            const label = isReserved ? 'มีผู้จองแล้ว' : 'พร้อมหาบ้าน';
+            return renderDogRow(d, badgeClass, label);
+          }).join('');
+        }
 
       } catch (err) {
         showToast(err.message, 'error');

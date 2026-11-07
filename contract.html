@@ -125,7 +125,9 @@
               <span class="text-sm font-bold text-zinc-800">สัญญาเลขที่: ${c.contract_code || c.id}</span>
               ${isSigned 
                 ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">✓ มีผลสมบูรณ์ตามกฎหมาย</span>'
-                : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">✍️ รอผู้รับเลี้ยงลงนาม</span>'
+                : (c.review_requested 
+                    ? '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">⚠️ ขอตรวจสอบสัญญา</span>'
+                    : '<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">✍️ รอผู้รับเลี้ยงลงนาม</span>')
               }
             </div>
             <button onclick="window.print()" class="px-3 py-1.5 rounded-xl border border-zinc-300 bg-white text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors shadow-2xs flex items-center gap-1.5">
@@ -220,11 +222,23 @@
             <!-- Digital Signature Box (if not signed) -->
             ${!isSigned ? `
               <div class="no-print mt-6 p-5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-4">
+                
+                ${c.review_requested ? `
+                  <div class="p-3 bg-amber-100/80 border border-amber-300 rounded-xl text-xs space-y-1 text-amber-900 mb-2">
+                    <div class="flex items-center gap-1.5 font-bold">
+                      <span>⚠️</span>
+                      <span>อยู่ระหว่างส่งคำร้องขอให้เจ้าหน้าที่ตรวจสอบสัญญา</span>
+                    </div>
+                    <p class="text-amber-800">รายละเอียดคำร้อง: ${c.review_request_notes || '-'}</p>
+                    <p class="text-[10px] text-amber-600">ยื่นคำร้องเมื่อ: ${c.review_requested_at || 'เร็วๆ นี้'}</p>
+                  </div>
+                ` : ''}
+
                 <div class="flex items-center gap-2 text-amber-900 font-bold text-xs">
                   <span>✍️</span> ลงนามดิจิทัลยืนยันข้อตกลง
                 </div>
                 <p class="text-xs text-amber-800">
-                  ข้าพเจ้าได้อ่านและเข้าใจข้อกำหนดในสัญญาทั้งหมดอย่างชัดเจน และขอยืนยันว่าจะปฏิบัติตามทุกประการ
+                  ข้าพเจ้าได้อ่านและเข้าใจข้อกำหนดในสัญญาทั้งหมดอย่างชัดเจน และขอยืนยันว่าจะปฏิบัติตามทุกประการ (หากต้องการปรับปรุงเงื่อนไข สามารถกดส่งคำร้องขอตรวจสอบสัญญาได้)
                 </p>
                 <div class="space-y-3">
                   <div>
@@ -235,9 +249,14 @@
                     <input type="checkbox" id="agree-terms-${c.id}" class="mt-0.5 accent-zinc-900">
                     <span>ข้าพเจ้ายินยอมให้สัญญานี้มีผลผูกพันตามกฎหมาย และตกลงส่งรายงานติดตามผลตามกำหนด</span>
                   </label>
-                  <button onclick="signContract('${c.id}')" id="btn-sign-${c.id}" class="px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
-                    ลงนามและยอมรับสัญญา
-                  </button>
+                  <div class="flex flex-wrap items-center gap-2 pt-1">
+                    <button onclick="signContract('${c.id}')" id="btn-sign-${c.id}" class="px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-xs">
+                      ลงนามและยอมรับสัญญา
+                    </button>
+                    <button type="button" onclick="openReviewModal('${c.id}')" class="px-4 py-2.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-100 text-zinc-700 text-xs font-semibold transition-colors shadow-2xs">
+                      📝 ส่งคำร้องขอตรวจสอบ/แก้ไขสัญญา
+                    </button>
+                  </div>
                 </div>
               </div>
             ` : `
@@ -292,7 +311,68 @@
       }
     }
 
+    let activeReviewContractId = null;
+
+    function openReviewModal(contractId) {
+      activeReviewContractId = contractId;
+      document.getElementById('review-notes-input').value = '';
+      document.getElementById('modal-review-request').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+      activeReviewContractId = null;
+      document.getElementById('modal-review-request').classList.add('hidden');
+    }
+
+    async function submitReviewRequest() {
+      if (!activeReviewContractId) return;
+      const notes = document.getElementById('review-notes-input').value.trim();
+      if (!notes) {
+        showToast('กรุณาระบุรายละเอียดคำร้องขอตรวจสอบสัญญา', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-submit-review');
+      btn.disabled = true;
+      btn.textContent = 'กำลังส่ง...';
+
+      try {
+        const res = await API.requestContractReview(activeReviewContractId, notes);
+        showToast(res.message || 'ส่งคำร้องขอตรวจสอบสัญญาเรียบร้อยแล้ว');
+        closeReviewModal();
+        await loadContracts();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ส่งคำร้องขอตรวจสอบ';
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', initPage);
   </script>
+
+  <!-- Modal: ส่งคำร้องขอตรวจสอบสัญญา (Context Diagram: Contract ID, คำร้องขอตรวจสอบสัญญา) -->
+  <div id="modal-review-request" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-2xl border border-zinc-200 shadow-xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <h3 class="text-sm font-bold text-zinc-900 flex items-center gap-2">
+          <span>📝</span> <span>ส่งคำร้องขอตรวจสอบ/แก้ไขสัญญา</span>
+        </h3>
+        <button type="button" onclick="closeReviewModal()" class="text-zinc-400 hover:text-zinc-600 text-sm">✕</button>
+      </div>
+
+      <div class="text-xs text-zinc-600 space-y-2">
+        <p>ระบุข้อความหรือเงื่อนไขที่ท่านประสงค์ขอให้เจ้าหน้าที่ตรวจสอบหรือปรับปรุงในสัญญาฉบับนี้:</p>
+        <textarea id="review-notes-input" rows="4" placeholder="เช่น ขอแก้ไขสถานที่ส่งมอบสุนัข หรือขอสอบถามรายละเอียดเงื่อนไขข้อ 2..." class="w-full rounded-xl border border-zinc-300 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeReviewModal()" class="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-100 text-xs font-medium">ยกเลิก</button>
+        <button type="button" onclick="submitReviewRequest()" id="btn-submit-review" class="px-5 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors shadow-2xs">
+          ส่งคำร้องขอตรวจสอบ
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

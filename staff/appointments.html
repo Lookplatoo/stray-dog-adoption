@@ -47,8 +47,8 @@
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold text-zinc-900">จัดการตารางนัดหมาย & แจ้งเตือน</h2>
-        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบและยืนยันนัดหมายดูตัวสุนัข พร้อมระบบส่งอีเมลแจ้งเตือนล่วงหน้าอัตโนมัติ</p>
+        <h2 class="text-xl font-bold text-zinc-900">จัดการตารางนัดหมาย</h2>
+        <p class="text-xs text-zinc-500 mt-1">ตรวจสอบและยืนยันนัดหมายดูตัวสุนัข (ระบบจัดส่งข้อมูลอีเมลแจ้งเตือนไปยังผู้รับเลี้ยงอัตโนมัติ)</p>
       </div>
       <div class="flex items-center gap-2">
         <select id="filter-appt-status" onchange="loadAppointments()" class="text-xs rounded-xl border border-zinc-200 bg-white px-3 py-2 text-zinc-800 shadow-2xs">
@@ -76,7 +76,7 @@
               <th class="px-4 py-3.5">สุนัขที่นัดพบ</th>
               <th class="px-4 py-3.5">ประเภทการนัด</th>
               <th class="px-4 py-3.5 text-center">สถานะ</th>
-              <th class="px-4 py-3.5 text-right">การจัดการ & แจ้งเตือน</th>
+              <th class="px-4 py-3.5 text-right">การพิจารณานัดหมาย</th>
             </tr>
           </thead>
           <tbody id="appts-table-body" class="divide-y divide-zinc-100 text-zinc-700">
@@ -173,11 +173,8 @@
                 ` : ''}
 
                 ${isConfirmed ? `
-                  <button onclick="remindUser('${a.id}')" title="ส่งอีเมลแจ้งเตือนล่วงหน้า" class="px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium">
-                    🔔 แจ้งเตือนอีเมล
-                  </button>
                   <button onclick="updateStatus('${a.id}', 'ดำเนินการแล้ว')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 text-white font-medium hover:bg-zinc-800 shadow-2xs">
-                    ✓ พบตัวแล้ว
+                    ✓ เข้าพบสุนัขแล้ว
                   </button>
                 ` : ''}
 
@@ -200,15 +197,6 @@
         const res = await API.updateAppointmentStatus(id, status, `เจ้าหน้าที่ปรับสถานะเป็น ${status}`);
         showToast(res.message || 'บันทึกสถานะนัดหมายสำเร็จ');
         await loadAppointments();
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    async function remindUser(id) {
-      try {
-        const res = await API.remindAppointment(id);
-        showToast(res.message || 'ส่งอีเมลแจ้งเตือนนัดหมายไปยังผู้รับเลี้ยงเรียบร้อยแล้ว!');
       } catch (err) {
         showToast(err.message, 'error');
       }

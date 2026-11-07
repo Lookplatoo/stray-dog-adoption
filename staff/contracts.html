@@ -115,6 +115,42 @@
     </div>
   </div>
 
+  <!-- Modal: เจ้าหน้าที่ปรับปรุงรายละเอียดสัญญา (Context Diagram: Contract ID, รายละเอียดสัญญา) -->
+  <div id="modal-edit-terms" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-xl rounded-2xl border border-zinc-200 shadow-xl overflow-hidden">
+      <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-zinc-900 flex items-center gap-2">
+            <span>✏️</span> <span>ปรับปรุงรายละเอียดและข้อกำหนดสัญญา</span>
+          </h3>
+          <p id="edit-terms-subtitle" class="text-xs text-zinc-500 mt-0.5">สัญญาเลขที่: -</p>
+        </div>
+        <button type="button" onclick="closeEditTermsModal()" class="text-zinc-400 hover:text-zinc-600 text-sm">✕</button>
+      </div>
+
+      <form id="form-edit-terms" onsubmit="handleUpdateTerms(event)" class="p-6 space-y-4 text-xs">
+        <div id="review-request-banner" class="p-3.5 bg-amber-50 border border-amber-300 rounded-xl space-y-1 text-amber-900 hidden">
+          <div class="font-bold flex items-center gap-1.5">
+            <span>📝</span> <span>คำร้องขอตรวจสอบ/แก้ไขจากผู้รับเลี้ยง:</span>
+          </div>
+          <p id="review-request-text" class="text-amber-800">-</p>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-zinc-700 mb-1">รายละเอียดและข้อกำหนดสัญญา (แก้ไขได้):</label>
+          <textarea id="edit-contract-terms-input" rows="7" required class="w-full rounded-xl border border-zinc-300 bg-zinc-50/50 p-3 text-zinc-900 font-mono text-[11px] leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
+          <button type="button" onclick="closeEditTermsModal()" class="px-4 py-2 rounded-xl border border-zinc-200 text-zinc-600 hover:bg-zinc-100 font-medium">ยกเลิก</button>
+          <button type="submit" id="btn-save-terms" class="px-5 py-2 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 shadow-2xs">
+            บันทึกรายละเอียดสัญญา
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="bg-white border-t border-zinc-200 py-6 mt-12 text-center text-xs text-zinc-400">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -180,11 +216,18 @@
               <td class="px-4 py-3.5 text-center">
                 ${isSigned 
                   ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">✓ ลงนามแล้ว (${c.signed_name || ''})</span>`
-                  : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">⏳ รอผู้รับเลี้ยงลงนาม</span>`
+                  : (c.review_requested 
+                      ? `<div class="space-y-1"><span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">⚠️ ผู้รับเลี้ยงขอตรวจสอบ</span><div class="text-[10px] text-amber-700 italic truncate max-w-[140px] mx-auto">${c.review_request_notes || ''}</div></div>`
+                      : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">⏳ รอผู้รับเลี้ยงลงนาม</span>`)
                 }
               </td>
-              <td class="px-4 py-3.5 text-right space-x-1">
-                <a href="../contract.html" target="_blank" class="px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium inline-block">
+              <td class="px-4 py-3.5 text-right space-x-1 whitespace-nowrap">
+                ${!isSigned ? `
+                  <button onclick="openEditTermsModal('${c.id}')" class="px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-xs transition-colors">
+                    ✏️ ปรับปรุงสัญญา
+                  </button>
+                ` : ''}
+                <a href="../contract.html" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium inline-block text-xs">
                   ดูฉบับเต็ม ↗
                 </a>
               </td>
@@ -258,6 +301,60 @@
         await loadContracts();
       } catch (err) {
         showToast(err.message, 'error');
+      }
+    }
+
+    let activeEditContractId = null;
+
+    function openEditTermsModal(contractId) {
+      activeEditContractId = contractId;
+      const contract = (cachedContracts || []).find(c => c.id === contractId);
+      if (!contract) return;
+
+      document.getElementById('edit-terms-subtitle').textContent = `สัญญาเลขที่: ${contract.contract_code || contract.id} • ผู้รับเลี้ยง: ${contract.adopter_name || '-'}`;
+      document.getElementById('edit-contract-terms-input').value = contract.terms || contract.stipulations || '';
+
+      const banner = document.getElementById('review-request-banner');
+      const bannerText = document.getElementById('review-request-text');
+      if (contract.review_requested) {
+        bannerText.textContent = contract.review_request_notes || 'ผู้รับเลี้ยงขอให้ตรวจสอบรายละเอียดเงื่อนไข';
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      document.getElementById('modal-edit-terms').classList.remove('hidden');
+    }
+
+    function closeEditTermsModal() {
+      activeEditContractId = null;
+      document.getElementById('modal-edit-terms').classList.add('hidden');
+    }
+
+    async function handleUpdateTerms(e) {
+      e.preventDefault();
+      if (!activeEditContractId) return;
+
+      const terms = document.getElementById('edit-contract-terms-input').value.trim();
+      if (!terms) {
+        showToast('กรุณาระบุรายละเอียดสัญญา', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-save-terms');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      try {
+        const res = await API.updateContractDetails(activeEditContractId, terms);
+        showToast(res.message || 'ปรับปรุงรายละเอียดสัญญาเรียบร้อยแล้ว');
+        closeEditTermsModal();
+        await loadContracts();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกรายละเอียดสัญญา';
       }
     }
 
