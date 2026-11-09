@@ -74,13 +74,13 @@
         <table class="w-full text-left text-xs">
           <thead class="bg-zinc-50/80 border-b border-zinc-200 text-zinc-500 font-semibold uppercase text-[11px]">
             <tr>
-              <th class="px-4 py-3.5">รหัสคำขอ</th>
-              <th class="px-4 py-3.5">ผู้ยื่นคำขอ</th>
-              <th class="px-4 py-3.5">สุนัขที่สนใจ</th>
-              <th class="px-4 py-3.5 text-center">คะแนนความพร้อม</th>
-              <th class="px-4 py-3.5">วันที่ยื่น</th>
-              <th class="px-4 py-3.5 text-center">สถานะ</th>
-              <th class="px-4 py-3.5 text-right">การจัดการ</th>
+              <th class="px-4 py-3.5 whitespace-nowrap">รหัสคำขอ</th>
+              <th class="px-4 py-3.5 whitespace-nowrap">ผู้ยื่นคำขอ</th>
+              <th class="px-4 py-3.5 whitespace-nowrap">สุนัขที่สนใจ</th>
+              <th class="px-4 py-3.5 text-center whitespace-nowrap">คะแนนความพร้อม</th>
+              <th class="px-4 py-3.5 whitespace-nowrap">วันที่ยื่น</th>
+              <th class="px-4 py-3.5 text-center whitespace-nowrap">สถานะ</th>
+              <th class="px-4 py-3.5 text-right whitespace-nowrap">การจัดการ</th>
             </tr>
           </thead>
           <tbody id="applications-table-body" class="divide-y divide-zinc-100 text-zinc-700">
@@ -178,42 +178,52 @@
 
         tbody.innerHTML = list.map(a => {
           let badge = '';
-          if (a.status === 'อนุมัติแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">อนุมัติแล้ว</span>';
-          else if (a.status === 'ปฏิเสธแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">ปฏิเสธ</span>';
-          else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">รอดำเนินการ</span>';
+          if (a.status === 'อนุมัติแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 whitespace-nowrap inline-block">อนุมัติแล้ว</span>';
+          else if (a.status === 'ปฏิเสธแล้ว') badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800 whitespace-nowrap inline-block">ปฏิเสธแล้ว</span>';
+          else badge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 whitespace-nowrap inline-block">รอดำเนินการ</span>';
 
           const meetsMin = (a.score ?? 0) >= minCriteriaScore;
           const scoreColor = meetsMin ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
           const criteriaTag = meetsMin 
-            ? `<div class="text-[10px] text-emerald-700 font-medium">✓ ผ่านเกณฑ์ (≥${minCriteriaScore})</div>` 
-            : `<div class="text-[10px] text-rose-600 font-medium">⚠️ ต่ำกว่าเกณฑ์ (&lt;${minCriteriaScore})</div>`;
+            ? `<div class="text-[10px] text-emerald-700 font-medium whitespace-nowrap">✓ ผ่านเกณฑ์ (≥${minCriteriaScore})</div>` 
+            : `<div class="text-[10px] text-rose-600 font-medium whitespace-nowrap">⚠️ ต่ำกว่าเกณฑ์ (&lt;${minCriteriaScore})</div>`;
 
           return `
             <tr class="hover:bg-zinc-50/60 transition-colors">
-              <td class="px-4 py-3.5 font-mono text-zinc-500 font-medium">${a.id.slice(0, 8)}</td>
+              <td class="px-4 py-3.5 font-mono text-zinc-500 font-medium whitespace-nowrap">${a.id}</td>
               <td class="px-4 py-3.5">
-                <div class="font-semibold text-zinc-900">${a.adopter_name || 'ผู้ยื่นคำขอ'}</div>
-                <div class="text-[11px] text-zinc-400">${a.adopter_email || ''} • ${a.adopter_phone || ''}</div>
+                <div class="font-semibold text-zinc-900 whitespace-nowrap">${a.adopter_name || 'ผู้ยื่นคำขอ'}</div>
+                <div class="text-[11px] text-zinc-400 whitespace-nowrap">${a.adopter_email || ''} • ${a.adopter_phone || ''}</div>
               </td>
               <td class="px-4 py-3.5">
                 <div class="flex items-center gap-2">
-                  <img src="${a.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-7 h-7 rounded-md object-cover">
-                  <div>
+                  <img src="${a.dog_image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=100'}" class="w-7 h-7 rounded-md object-cover shrink-0">
+                  <div class="whitespace-nowrap">
                     <div class="font-medium text-zinc-800">${a.dog_name || 'สุนัข'}</div>
                     <div class="text-[10px] text-zinc-400">${a.dog_code || ''}</div>
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-3.5 text-center">
+              <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <span class="${scoreColor}">${a.score ?? 0}</span> <span class="text-zinc-400 text-[10px]">/ 100</span>
                 ${criteriaTag}
               </td>
-              <td class="px-4 py-3.5 text-zinc-500">${a.created_at ? a.created_at.split('T')[0] : '-'}</td>
-              <td class="px-4 py-3.5 text-center">${badge}</td>
-              <td class="px-4 py-3.5 text-right">
+              <td class="px-4 py-3.5 text-zinc-500 whitespace-nowrap">${a.created_at ? a.created_at.split('T')[0] : '-'}</td>
+              <td class="px-4 py-3.5 text-center whitespace-nowrap">${badge}</td>
+              <td class="px-4 py-3.5 text-right whitespace-nowrap space-x-1.5">
                 <button onclick="openReviewModal('${a.id}')" class="px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium transition-colors shadow-2xs">
                   ตรวจสอบ / พิจารณา
                 </button>
+                ${a.status === 'รอดำเนินการ' ? `
+                  <button onclick="quickApprove('${a.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors shadow-2xs text-xs" title="อนุมัติด่วน">
+                    ✓ อนุมัติ
+                  </button>
+                ` : ''}
+                ${a.status === 'อนุมัติแล้ว' ? `
+                  <a href="./appointments.html" class="px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium text-[11px] inline-block shadow-2xs">
+                    📅 นัดหมาย →
+                  </a>
+                ` : ''}
               </td>
             </tr>
           `;
@@ -231,7 +241,8 @@
       document.getElementById('modal-title').textContent = `พิจารณาคำขอรหัส: ${app.id.slice(0, 8)}`;
       document.getElementById('review-reason').value = app.rejection_reason || (app.status === 'อนุมัติแล้ว' ? 'ผ่านเกณฑ์การประเมินสถานที่และความพร้อม' : '');
 
-        const meetsMin = (app.score ?? 0) >= minCriteriaScore;
+      const container = document.getElementById('modal-details');
+      const meetsMin = (app.score ?? 0) >= minCriteriaScore;
         const boxBg = meetsMin ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200';
         const textTitleColor = meetsMin ? 'text-emerald-900' : 'text-rose-900';
         const textSubColor = meetsMin ? 'text-emerald-700' : 'text-rose-700';
@@ -305,6 +316,16 @@
         const res = await API.reviewApplication(activeAppId, status, reason);
         showToast(res.message || `ดำเนินการ ${status} เรียบร้อยแล้ว`);
         closeReviewModal();
+        await loadApplications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function quickApprove(id) {
+      try {
+        const res = await API.reviewApplication(id, 'อนุมัติแล้ว', 'ผ่านเกณฑ์การประเมินสถานที่และความพร้อม');
+        showToast(res.message || 'อนุมัติคำขอรับเลี้ยงเรียบร้อยแล้ว');
         await loadApplications();
       } catch (err) {
         showToast(err.message, 'error');
