@@ -516,7 +516,7 @@ const api = {
       application_id: data.application_id,
       user_id: info.id || 1,
       dog_id: data.dog_id,
-      appointment_type: data.appointment_type || 'สัมภาษณ์ดูตัวที่ศูนย์',
+      appointment_type: data.appointment_type || 'นัดหมายสัมภาษณ์และเยี่ยมบ้าน',
       date: apptDate,
       time: apptTime,
       status: 'confirmed',
